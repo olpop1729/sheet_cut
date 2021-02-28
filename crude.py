@@ -67,7 +67,7 @@ while start < sl:
     
 cut_feed = list(zip(feed_sequence,cut_sequence))
 df = pd.DataFrame(data = cut_feed, columns=['Feed', 'Cut'])
-temp = pd.ExcelWriter('CutFeed_0.xlsx')
+temp = pd.ExcelWriter('sample_cut_programs/CutFeed_0.xlsx')
 df.to_excel(temp)
 temp.save()
     
