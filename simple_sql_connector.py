@@ -178,7 +178,7 @@ for (index, ttu, pf,sf,count) in cursor:
 
 proceed = input('Write to db ? (y or n) - ')
 if proceed == 'y':
-    cnx.commmit()
+    cnx.commit()
 cursor.close()
 cnx.close()
 
