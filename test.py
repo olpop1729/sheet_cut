@@ -38,7 +38,7 @@ while True:
         name = input('Enter name - ')
         pos = input('Enter position - ')
         if name[0] == 'p':
-            pdist = int(input('Enter distance to the corresponding full cut/v notch'))
+            pdist = int(input('Enter distance to the corresponding full cut/v notch - '))
         if name not in tool_name_map.keys():
             print('Invalid tool name')
             continue
