@@ -66,7 +66,8 @@ def feedPrimary(d, dist):
         dist[i] += d
 
 
-
+def resetDist(d, pl, tool):
+    pass
 
 
 #********************************************
@@ -82,6 +83,7 @@ while start < coil_length:
     closest_cut = min([i for i in dist.values()])
     for i in dist.keys():
         if dist[i] == closest_cut:
+            resetDist(dist[i], pattern_len, i)
             dist[i] = pattern_len
             if i.isPartial():
                 prev_partial = i.pd
@@ -107,6 +109,7 @@ df = pd.DataFrame(data = cut_feed, columns=['Primary Feed', 'Secondary Feed','Op
 temp = pd.ExcelWriter('CutFeed.xlsx')
 df.to_excel(temp)
 temp.save()
+temp.close()
             
 
 
