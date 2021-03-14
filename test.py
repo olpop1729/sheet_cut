@@ -106,7 +106,7 @@ while start < coil_length:
 
 cut_feed = list(zip(primary_feed,secondary_feed,operation))
 df = pd.DataFrame(data = cut_feed, columns=['Primary Feed', 'Secondary Feed','Operation'])
-temp = pd.ExcelWriter('CutFeed.xlsx')
+temp = pd.ExcelWriter('cut_program_output/CutFeed.xlsx')
 df.to_excel(temp)
 temp.save()
 temp.close()
