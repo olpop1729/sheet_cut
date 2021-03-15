@@ -15,16 +15,33 @@ tool_name_map = {'h':['Hole Punch', cdhv],'v':['V Notch',coil_start_pos],'fp45':
 #for i in tool_name_map.keys():
 #    print(i , ' - - ' , tool_name_map[i])
 class Tool():
-    def __init__(self,name,pos,pd=None):
+    
+    def __init__(self,name,pos,pd=None,step_lap=0,step_lap_dist=0):
         self.name = name
         self.pos = pos
         self.pd = pd
+        self.step_lap = step_lap
+        self.step_lap_dist = step_lap_dist
+        self.step_lap_counter = 0
+        self.step_lap_dlist = []
+        self.is_front = False
+        
     def isPartial(self):
         if self.name[0] == 'p':
             return True
         return False
+    
     def longname(self):
         return tool_name_map[self.name][0]
+    
+    def generateStepLapDlist(self):
+        n = self.step_lap
+        for i in range(n // 2 +1):
+            if i == 0:
+                self.step_lap_dlist.append(0)
+            else:
+                self.step_lap_dlist.append(-self.step_lap_dist*i)
+                self.step_lap_dlist.append(self.step_lap_dist*i)
 
 #temporary input        
 
@@ -45,7 +62,7 @@ while True:
         tool_list.append(Tool(name, int(pos), pdist))
         
         
-pattern_len = int(input('Enter Pattern Length'))
+pattern_len = int(input('Enter Pattern Length - '))
 
 # for i in tool_list:
 #     print(i.longname())
@@ -109,7 +126,4 @@ df = pd.DataFrame(data = cut_feed, columns=['Primary Feed', 'Secondary Feed','Op
 temp = pd.ExcelWriter('cut_program_output/CutFeed.xlsx')
 df.to_excel(temp)
 temp.save()
-temp.close()
-            
-
-
+del temp
