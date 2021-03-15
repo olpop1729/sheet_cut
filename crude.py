@@ -7,7 +7,6 @@ import pandas as pd
 l = {'h1':100,'h2':300,'a1':0,'a2':400,'v1':200,'v2':500}
 #1#l = {'a1':0,'h1':200,'v1':450,'h2':750,'a2':1100,'h3':1500,'h4':1950}
 #2#l = {'a1':0,'a2':0,'v1':0,'h1':400,'h2':850}
-#3#l = {'a1':20,'a2':,'h1':220,'h2':770,'h3':,'h4':,'v1':470,'v2':,'a3':0,'a4':,'a5':,'a6':}
 
 #distance between cutters
 da_dv = 4355        #distance between 45 and V
@@ -17,7 +16,6 @@ da_dh = 3100        #distance between 45 and H
 patternLen = 600
 #1#patternLen = 2450
 #2#patternLen = 1350
-#3#patternLen = 
 
 cut_sequence = []
 feed_sequence = []
@@ -67,11 +65,9 @@ while start < sl:
     
 cut_feed = list(zip(feed_sequence,cut_sequence))
 df = pd.DataFrame(data = cut_feed, columns=['Feed', 'Cut'])
-temp = pd.ExcelWriter('sample_cut_programs/CutFeed_0.xlsx')
+temp = pd.ExcelWriter('cut_program_output/CutFeed_0.xlsx')
 df.to_excel(temp)
 temp.save()
-    
-    
     
     
     

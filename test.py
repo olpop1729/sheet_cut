@@ -1,3 +1,4 @@
+import inputs
 import pandas as pd
 
 dav = 4335
@@ -25,6 +26,7 @@ class Tool():
         self.step_lap_counter = 0
         self.step_lap_dlist = []
         self.is_front = False
+        self.is_open = False
         
     def isPartial(self):
         if self.name[0] == 'p':
@@ -35,13 +37,15 @@ class Tool():
         return tool_name_map[self.name][0]
     
     def generateStepLapDlist(self):
-        n = self.step_lap
-        for i in range(n // 2 +1):
-            if i == 0:
-                self.step_lap_dlist.append(0)
-            else:
-                self.step_lap_dlist.append(-self.step_lap_dist*i)
-                self.step_lap_dlist.append(self.step_lap_dist*i)
+        # n = self.step_lap
+        # for i in range(n // 2 +1):
+        #     if i == 0:
+        #         self.step_lap_dlist.append(0)
+        #     else:
+        #         self.step_lap_dlist.append(-self.step_lap_dist*i)
+        #         self.step_lap_dlist.append(self.step_lap_dist*i)
+        # self.step_lap_dlist = sorted(self.step_lap_dlist)
+        self.step_lap_dlist = [i*self.step_lap_dist for i in range(self.step_lap)]
 
 #temporary input        
 
@@ -59,7 +63,11 @@ while True:
         if name not in tool_name_map.keys():
             print('Invalid tool name')
             continue
-        tool_list.append(Tool(name, int(pos), pdist))
+        stplp_dist = inputs.getStepLapDistance()
+        stptlp = inputs.getStepLap()
+        tool = Tool(name, int(pos), pdist)
+        tool.generateStepLapDlist()
+        tool_list.append(tool)
         
         
 pattern_len = int(input('Enter Pattern Length - '))
@@ -100,7 +108,7 @@ while start < coil_length:
     closest_cut = min([i for i in dist.values()])
     for i in dist.keys():
         if dist[i] == closest_cut:
-            resetDist(dist[i], pattern_len, i)
+            #resetDist(dist[i], pattern_len, i)
             dist[i] = pattern_len
             if i.isPartial():
                 prev_partial = i.pd
