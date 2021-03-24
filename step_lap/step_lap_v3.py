@@ -78,6 +78,7 @@ class Labels:
     get_front_open = 'Front Open : '
     get_lateral_shift_count = 'Enter lateral-shift count : '
     get_length_list = 'Enter lengths seperated by spaces : '
+    get_layers = 'Enter no. of layers : '
     confirm = 'Continue ? : '
     incorrect_tool_input = 'Incorrect tool input. Last tool does not match the first tool.'
     
@@ -105,6 +106,8 @@ class Labels:
     def warnNameNotFound():
         print(f'{bcolors.FAIL}{Labels.ERROR}Name not found.{bcolors.ENDC}')
     
+    def warnNegativeLayers():
+        print(f'{bcolors.FAIL}{Labels.WARNING}No. of layers cannot be negative!{bcolors.ENDC}')
     
     
 ###############################################################################
@@ -120,6 +123,22 @@ class Tool():
         self.step_lap_distance = 0
         self.step_lap_vector = []
         self.step_lap_counter = 0
+        self.is_front = False
+        self.is_rear = False
+        
+    def getIsFront( self ):
+        is_front = input( Labels.get_is_front )
+        if is_front in Config.LIST_NO:
+            self.is_front = False
+        else:
+            self.is_front = True
+            
+    def getIsRear( self ):
+        is_rear = input( Labels.get_is_rear )
+        if is_rear in Config.LIST_NO:
+            self.is_rear = False
+        else:
+            self.is_rear = True
         
     def hasStepLap(self):
         if self.step_lap_count > 1:
@@ -198,6 +217,8 @@ class Vnotch(Tool):
         self.later_shift_distance = 0
         self.is_open = False
             
+    def getIsOpen(self):
+        pass
     
     def getLateralShiftCount(self):
         while True:
@@ -215,8 +236,11 @@ class Vnotch(Tool):
             except Exception as err:
                 Labels.printError(err)
                 
+    def setLateralShiftCounter(self):
+        pass
+    
     def generateLateralShiftVector(self):
-        self.lateral_shift_vector = [i*self.later_shift_distance for i in 
+        self.lateral_shift_vector = [i * self.later_shift_distance for i in 
                                 range(-self.later_shift_count//2 + 1,
                                       self.later_shift_count//2 + 1)]
         
@@ -224,8 +248,6 @@ class FullCut(Tool):
     def __init__(self, is_front=False, is_rear=False, 
                  front_open=False, rear_open=False):
         super().__init__()
-        self.is_front = is_front
-        self.is_rear = is_rear
         self.front_open = front_open
         self.rear_open = rear_open
         self.rear_step_lap_counter = 0
@@ -260,20 +282,6 @@ class FullCut(Tool):
         elif not self.rear_open and self.is_rear:
             self.rear_step_lap_counter -= 1
             self.rear_step_lap_counter = self.rear_step_lap_counter % self.step_lap_count
-            
-    def getIsFront( self ):
-        is_front = input( Labels.get_is_front )
-        if is_front in Config.LIST_NO:
-            self.is_front = False
-        else:
-            self.is_front = True
-            
-    def getIsRear( self ):
-        is_rear = input( Labels.get_is_rear )
-        if is_rear in Config.LIST_NO:
-            self.is_rear = False
-        else:
-            self.is_rear = True
             
     def getFrontOpen( self ):
         front_open = input( Labels.get_front_open )
@@ -322,6 +330,23 @@ class JobProfile():
         self.executable_tool_list = None
         self.pattern_length = 0
         self.vnotch_axis = []
+        self.layers = 1
+        
+    def getLayers(self):
+        while True:
+            try:
+                layers = int(input(Labels.get_layers))
+                if layers < 0:
+                    Labels.warnNegativeLayers()
+                    continue
+                elif layers == 0:
+                    self.layers = 1
+                    return
+                else:
+                    self.layers = layers
+                    return
+            except ValueError as err:
+                Labels.printError(err)
         
     def showTools(self):
         for i in self.tool_list:
@@ -358,11 +383,15 @@ class JobProfile():
                     tool_list.append(hole)
                 elif name in TOOL_V_NOTCH:
                     vnotch = Vnotch()
+                    vnotch.getIsFront()
+                    vnotch.getIsRear()
                     if not vnotch.getStepLapCount():
                         if vnotch.getLateralShiftCount():
+                            vnotch.getIsOpen()
                             vnotch.getLaterShiftDistance()
                             vnotch.generateLaterShiftVector()
                     else:
+                        vnotch.getIsOpen()
                         vnotch.getStepLapDistance()
                         vnotch.generateStepLapVector()
                     tool_list.append(vnotch)
@@ -399,27 +428,30 @@ class JobProfile():
             os.exit()
         
     def updateLengths(self):
-        new_l_i = []
-        for i in range(self.step_lap):
-            for j in range(len(self.length_list)):
-                temp = self.tool_list[j]
-                if temp.hasStepLap():
-                    if temp.is_front and not temp.is_rear:
-                        new_l_i.append(self.length_list[j] + 
-                                   temp.step_lap_vector[temp.step_lap_counter])
-                        temp.incrementSteplapCounter()
-                    elif temp.is_rear and temp.is_front:
-                        new_l_i[-1] = self.length_list[j] + temp.step_lap_vector[temp.rear_step_lap_counter]
-                        new_l_i.append(self.length_list[j] + 
-                                   temp.step_lap_vector[temp.step_lap_counter])
-                        temp.incrementSteplapCounter()
-                        
-                else:
-                    new_l_i.append(self.length_list[j])
-                if j == len(self.length_list) - 1:
-                    new_l_i[-1] = self.length_list[j] + self.tool_list[j+1].step_lap_vector[self.tool_list[j+1].rear_step_lap_counter]
-                    self.tool_list[j+1].incrementSteplapCounter()
-        self.length_list = new_l_i
+        if self.step_lap > 1:
+            new_l_i = []
+            for i in range(self.step_lap):
+                for j in range(len(self.length_list)):
+                    temp = self.tool_list[j]
+                    if temp.hasStepLap():
+                        if temp.is_front and not temp.is_rear:
+                            new_l_i.append(self.length_list[j] + 
+                                       temp.step_lap_vector[temp.step_lap_counter])
+                            temp.incrementSteplapCounter()
+                        elif temp.is_rear and temp.is_front:
+                            #new_l_i[-1] = self.length_list[j] + temp.step_lap_vector[temp.rear_step_lap_counter]
+                            new_l_i[-1] += temp.step_lap_vector[temp.rear_step_lap_counter]
+                            new_l_i.append(self.length_list[j] + 
+                                       temp.step_lap_vector[temp.step_lap_counter])
+                            temp.incrementSteplapCounter()
+                            
+                    else:
+                        new_l_i.append(self.length_list[j])
+                    if j == len(self.length_list) - 1:
+                        #new_l_i[-1] = self.length_list[j] + self.tool_list[j+1].step_lap_vector[self.tool_list[j+1].rear_step_lap_counter]
+                        new_l_i[-1] += self.tool_list[j+1].step_lap_vector[self.tool_list[j+1].rear_step_lap_counter]
+                        self.tool_list[j+1].incrementSteplapCounter()
+            self.length_list = new_l_i
     
     def createExecutableToolList(self):
         inner = []
@@ -427,6 +459,9 @@ class JobProfile():
         distance_to_tool = 0
         modulo = len(self.tool_list) - 1
         for i in range(len(self.length_list)):
+            if self.step_lap == 1:
+                if self.tool_list[i].is_rear and not self.tool_list[i].is_front:
+                    break
             distance_to_tool = position + Config.TOOL_DISTANCE_MAP[self.tool_list[i % modulo].name]
             inner.append([self.tool_list[i % modulo].name, distance_to_tool])
             position += self.length_list[i]
@@ -440,6 +475,7 @@ class JobProfile():
         terminate = 0
         operation = []
         feed = []
+        v_axis = []
         repeat_flag = False
         while terminate < Config.COIL_LENGTH:
             closest_cut = min([i[1] for i in self.executable_tool_list])
@@ -458,7 +494,6 @@ class JobProfile():
             terminate += closest_cut
         cut_feed = list(zip(feed,operation))
         df = pd.DataFrame(data = cut_feed, columns=['Feed','Operation'])
-        df['test'] = [1,2]
         temp = pd.ExcelWriter('../cut_program_output/CutFeed_1.xlsx')
         df.to_excel(temp)
         temp.save()
