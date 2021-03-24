@@ -24,6 +24,6 @@ TOOL_F0 = ['full cut', '0','0 shear','shear','zero','f0',4]
 # directories
 
 OUTPUT_CUT_PROGRAM_DIRECTORY = 'cut_program_output/'
-CONFIG_FILE_NAME = 'config.txt'
+CONFIG_FILE_NAME = 'cfg/config.txt'
 
 #-------------------------------------------

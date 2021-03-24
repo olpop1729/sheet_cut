@@ -63,10 +63,10 @@ while True:
         if name not in tool_name_map.keys():
             print('Invalid tool name')
             continue
-        stplp_dist = inputs.getStepLapDistance()
-        stptlp = inputs.getStepLap()
+        #stplp_dist = inputs.getStepLapDistance()
+        #stptlp = inputs.getStepLap()
         tool = Tool(name, int(pos), pdist)
-        tool.generateStepLapDlist()
+        #tool.generateStepLapDlist()
         tool_list.append(tool)
         
         
@@ -131,7 +131,8 @@ while start < coil_length:
 
 cut_feed = list(zip(primary_feed,secondary_feed,operation))
 df = pd.DataFrame(data = cut_feed, columns=['Primary Feed', 'Secondary Feed','Operation'])
-temp = pd.ExcelWriter('cut_program_output/CutFeed.xlsx')
+temp = pd.ExcelWriter('../cut_program_output/CutFeed.xlsx')
 df.to_excel(temp)
 temp.save()
 del temp
+

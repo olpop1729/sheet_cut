@@ -52,6 +52,7 @@ class Tool():
         self.has_steplap = False
         self.has_lateral_shift = False
         self.is_partial = False
+        self.is_open = True
         
     def getIsFront(self):
         if input('Front? (y or n) - ') in LIST_YES:
@@ -135,6 +136,7 @@ class JobProfile():
         while True:
             try:
                 self.length_list = [int(i) for i in input('Enter l_i - ').split()]
+                return
             except Exception as err:
                 print(f'{bcolors.WARNING}{err}{bcolors.ENDC}')
                 
