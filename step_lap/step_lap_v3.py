@@ -7,7 +7,7 @@ Created on Tue Mar 23 14:58:56 2021
 """
 import os
 import pandas as pd
-import itertools
+#import itertools
 
 # user inputs. always keep the case lower. keep the encodings at last
 TOOL_HOLE = ['hole','h',0]
@@ -432,12 +432,14 @@ class JobProfile():
             cmd_input = input(Labels.add_tool).lower()
             if cmd_input not in Config.LIST_NO:
                 name = input(Labels.get_name).lower()
+                
                 if name in TOOL_HOLE:
                     hole = Hole()
                     if hole.getStepLapCount():
                         hole.getStepLapDistance()
                         hole.generateStepLapVector()
                     tool_list.append(hole)
+                    
                 elif name in TOOL_V_NOTCH:
                     vnotch = Vnotch()
                     vnotch.getIsFront()
@@ -451,6 +453,7 @@ class JobProfile():
                         vnotch.getStepLapDistance()
                         vnotch.generateStepLapVector()
                     tool_list.append(vnotch)
+                    
                 elif name in TOOL_P45:
                     fp45 = Fp45()
                     fp45.getIsFront()
