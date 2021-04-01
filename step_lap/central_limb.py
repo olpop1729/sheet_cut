@@ -140,7 +140,7 @@ class JobProfile():
     def getLengthList(self):
         while True:
             try:
-                self.length_list = [int(i) for i in input('Enter lengths : ').split()]
+                self.length_list = [float(i) for i in input('Enter lengths : ').split()]
                 if len(self.length_list) != len(self.tool_list) - 1:
                     print('Incorrect length list.')
                     continue
