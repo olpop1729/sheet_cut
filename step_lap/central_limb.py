@@ -117,6 +117,7 @@ class JobProfile():
             except ValueError as err:
                 print(f'Error : {err}')
         
+    # getToolList is equivalent to the cut program
     def getToolList(self):
         tool_list = []
         while True:
@@ -186,8 +187,8 @@ class JobProfile():
         for i in range(len(self.length_list)):
             tool = self.tool_list[i % modulo]
             if isinstance(tool, Spear):
-                inner.append(['fm45', position + 4335])
                 inner.append(['fp45', position + 4335])
+                inner.append(['fm45', position + 4335])
                 inner.append(['v',position + 0])
             elif isinstance(tool, Hole):
                 inner.append(['h', position + 1250])
