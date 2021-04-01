@@ -7,7 +7,7 @@ Created on Tue Mar 23 14:58:56 2021
 """
 import os
 import pandas as pd
-#import itertools
+import itertools
 
 # user inputs. always keep the case lower. keep the encodings at last
 TOOL_HOLE = ['hole','h',0]
@@ -31,17 +31,17 @@ class bcolors:
 class Config:
     DISTANCE_HOLE_VNOTCH = 1250
     DISTANCE_SHEAR_VNOTCH = 4335
-    COIL_LENGTH = 4000000
+    COIL_LENGTH = 400000
     CUT_PROGRAM_OUTPUT_DIRECTORY = '../cut_program_output'
     COIL_START_POSITION = 0 # w.r.t. V_Notch.
     OUTPUT_FILE_NAME = 'CutFeed_'
     LIST_NO = ['no', 'n','not', '0','negative','incorrect']
     LIST_YES = ['yes', 'y', 'affirmative', 'correct', '1']
-    TOOL_NAME_MAP = {'h':['Hole Punch', DISTANCE_HOLE_VNOTCH,0],
+    TOOL_NAME_MAP = {'h':['Hole Punch', DISTANCE_HOLE_VNOTCH,2],
                      'v':['V Notch', DISTANCE_SHEAR_VNOTCH,1],
-                     'fm45':['Full Cut -45',2],
+                     'fm45':['Full Cut -45',4],
                      'fp45':['Full Cut +45',3],
-                     'f0':['Full Cut 0',4],
+                     'f0':['Full Cut 0',5],
                      'pfr':['Partial Front Right'],
                      'pfl':['Partial Front Left'],
                      'prr':['Partial Rear Right'],
@@ -416,7 +416,7 @@ class JobProfile():
     def getLengthList(self):
         while True:
             try:
-                l_i = [int(i) for i in input(Labels.get_length_list).split()]
+                l_i = [float(i) for i in input(Labels.get_length_list).split()]
                 print(l_i)
                 check = input(Labels.confirm)
                 if check in Config.LIST_NO:
@@ -551,9 +551,12 @@ class JobProfile():
     def execute(self):
         terminate = 0
         operation = []
+        tool_number = []
         feed = []
         v_axis = []
         repeat_flag = False
+        sheet_count = []
+        sheet_counter = -0.5
         while terminate < Config.COIL_LENGTH:
             closest_cut = min([i[1] for i in self.executable_tool_list])
             for i in self.executable_tool_list:
@@ -561,18 +564,37 @@ class JobProfile():
                     i[1] = self.pattern_length
                     if repeat_flag:
                         feed.append(0)
-                        v_axis.append(i[2])
                     else:
                         feed.append(closest_cut)
-                        v_axis.append(i[2])
                         repeat_flag = True
+                    v_axis.append(i[2])
                     operation.append(i[0])
+                    tool_number.append(Config.TOOL_NAME_MAP[i[0]][-1])
+                    sheet_count.append(int(sheet_counter)*2)
+                    if i[0] == self.executable_tool_list[0][0]:
+                        sheet_counter += 0.5
                 else:
                     i[1] -= closest_cut
             repeat_flag = False
             terminate += closest_cut
-        cut_feed = list(zip(feed,v_axis, operation))
-        df = pd.DataFrame(data = cut_feed, columns=['Feed','V-Axis','Operation'])
+        start_index = 0
+        end_index = 0
+        for i in range(len(operation)):
+            if operation[i][0] == 'f':
+                start_index = i
+                break
+        start_index += 3
+        end_index = start_index + len(self.length_list) - 1
+        start_index = [start_index]
+        end_index = [end_index]
+        cut_feed = list(itertools.zip_longest(feed,v_axis, operation, 
+                                              tool_number, start_index ,
+                                              end_index, sheet_count,[0],[0],fillvalue=''))
+        cut_feed.insert(0,(-5500,0,0,0,0,0,0,0,0))
+        df = pd.DataFrame(data = cut_feed, columns=['Feed Length','V-Axis','Tool Name',
+                                                    'Tool No.', 'Start Index','End Index',
+                                                    'Sheet Count','Over-cut +45',
+                                                    'Over-cut -45'])
         df.index += 1
         temp = pd.ExcelWriter('../cut_program_output/CutFeed_1.xlsx')
         df.to_excel(temp)

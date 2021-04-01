@@ -107,6 +107,15 @@ class JobProfile():
         self.step_lap = 1
         self.pattern_length = 0
         self.executable_tool_list = None
+        self.layers = 1
+        
+    def getLayers(self):
+        while True:
+            try:
+                self.layers = int(input('Enter layers : '))
+                return
+            except ValueError as err:
+                print(f'Error : {err}')
         
     def getToolList(self):
         tool_list = []
@@ -152,6 +161,7 @@ class JobProfile():
         updated_list = []
         if self.hasSteplap():
             for i in range(self.step_lap):
+                new_list = []
                 for j in range(len(self.length_list)):
                     temp = self.tool_list[j]
                     new_len = self.length_list[j]
@@ -159,13 +169,14 @@ class JobProfile():
                         if temp.is_front:
                             new_len += temp.step_lap_vector[temp.step_lap_counter]
                             temp.incrementStepLapCounter()
-                    updated_list.append(new_len)
+                    new_list.append(new_len)
                     if j == len(self.length_list) - 1:
                         temp = self.tool_list[j+1]
                         if isinstance(temp, Spear):
                             if not temp.is_front:
-                                updated_list[-1] += temp.step_lap_vector[temp.step_lap_counter]
+                                new_list[-1] += temp.step_lap_vector[temp.step_lap_counter]
                                 temp.incrementStepLapCounter()
+                updated_list.extend(new_list * self.layers)
             self.length_list = updated_list
     
     def createExecutableTools(self):
@@ -215,7 +226,8 @@ class JobProfile():
 jp = JobProfile()
 jp.getToolList()
 jp.getLengthList()
+jp.getLayers()
 jp.updateLengthList()
 jp.createExecutableTools()
-jp.execute()
+#jp.execute()
 
