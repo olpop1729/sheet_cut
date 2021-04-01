@@ -556,7 +556,7 @@ class JobProfile():
         v_axis = []
         repeat_flag = False
         sheet_count = []
-        sheet_counter = -0.5
+        sheet_counter = -1
         while terminate < Config.COIL_LENGTH:
             closest_cut = min([i[1] for i in self.executable_tool_list])
             for i in self.executable_tool_list:
@@ -570,9 +570,9 @@ class JobProfile():
                     v_axis.append(i[2])
                     operation.append(i[0])
                     tool_number.append(Config.TOOL_NAME_MAP[i[0]][-1])
-                    sheet_count.append(int(sheet_counter)*2)
+                    sheet_count.append(sheet_counter)
                     if i[0] == self.executable_tool_list[0][0]:
-                        sheet_counter += 0.5
+                        sheet_counter += 1
                 else:
                     i[1] -= closest_cut
             repeat_flag = False
