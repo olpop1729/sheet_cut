@@ -57,7 +57,8 @@ class Spear():
     def getIsOpen(self):
         if input('Open : ').lower() in ['y','yes']:
             self.is_open = True
-        self.is_open = False
+        else:
+            self.is_open = False
         
     def getIsFront(self):
         if input('Front : ').lower() in ['y','yes']:
@@ -71,8 +72,10 @@ class Spear():
                                       -self.step_lap_count//2, -1)]
         if self.is_open:
             self.step_lap_counter = 0
+            return
         else:
             self.step_lap_counter = self.step_lap_count - 1
+        return
         
     def getStepLapCount(self):
         while True:
@@ -230,5 +233,5 @@ jp.getLengthList()
 jp.getLayers()
 jp.updateLengthList()
 jp.createExecutableTools()
-jp.execute()
+#jp.execute()
 
