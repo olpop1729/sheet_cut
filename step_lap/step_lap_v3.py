@@ -14,7 +14,7 @@ TOOL_HOLE = ['hole','h',0]
 TOOL_V_NOTCH = ['v notch', 'vnotch','v',1]
 TOOL_P45 = ['full cut +45','+45','45','fp45','p45',2]
 TOOL_M45 = ['full cut -45','-45','fm45','m45',3]
-TOOL_F0 = ['full cut', '0','0 shear','shear','zero','f0',4]
+TOOL_F0 = ['full cut', '0','0 shear','shear','zero','f0','full cut 0',4]
 
 #pretty colors
 class bcolors:
@@ -477,6 +477,19 @@ class JobProfile():
                         fm45.generateStepLapVector()
                         fm45.setStepLapCounter()
                     tool_list.append(fm45)
+                    
+                elif name in TOOL_F0:
+                    f0 = F0()
+                    f0.getIsFront()
+                    f0.getIsRear()
+                    f0.getFrontOpen()
+                    f0.getRearOpen()
+                    if f0.getStepLapCount():
+                        f0.getStepLapDistance()
+                        f0.generateStepLapVector()
+                        f0.setStepLapCounter()
+                    tool_list.append(f0)
+                
                 else:
                     Labels.warnNameNotFound()
             else:
@@ -545,8 +558,6 @@ class JobProfile():
         self.pattern_length = position
         self.executable_tool_list = inner
         
-        ## start building positions
-        position = 0
         
     def execute(self):
         terminate = 0
@@ -589,7 +600,8 @@ class JobProfile():
         end_index = [end_index]
         cut_feed = list(itertools.zip_longest(feed,v_axis, operation, 
                                               tool_number, start_index ,
-                                              end_index, sheet_count,[0],[0],fillvalue=''))
+                                              end_index, sheet_count,[0],[0],
+                                              fillvalue=''))
         cut_feed.insert(0,(-5500,0,0,0,0,0,0,0,0))
         df = pd.DataFrame(data = cut_feed, columns=['Feed Length','V-Axis','Tool Name',
                                                     'Tool No.', 'Start Index','End Index',
