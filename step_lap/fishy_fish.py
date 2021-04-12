@@ -7,14 +7,20 @@ Created on Thu Apr  8 23:09:40 2021
 """
 
 import pandas as pd 
-import os
+from os import listdir
+from os.path import isfile, join
+
 
 class PandasModule():
     def __init__(self):
         self.file_name = ''
         
     def checkFileName(self, name):
-        pass
+        mypath = '../cut_program_putput/'
+        onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+        if name in onlyfiles:
+            return False
+        return True
             
     
 class JobProfile():
@@ -54,7 +60,8 @@ class JobProfile():
         for i in range(self.step_lap_count):
             if len(self.hole) > 0:
                 for j in self.hole:
-                    exe.append(['h', j + (2*self.k - i + 2*self.k*i)*self.step_lap_distance + i*self.fish_len])
+                    #exe.append(['h', j + (2*self.k - i + 2*self.k*i)*self.step_lap_distance + i*self.fish_len])
+                    exe.append(['h',j + i*self.fish_len + self.step_lap_distance*(2*self.k*i + 2*self.k - i)])
             exe.append(['fm45', i*self.fish_len + (3+i)*self.k*self.step_lap_distance])
             exe.append(['fp45',(i+1)*self.fish_len + (3+i)*self.k*self.step_lap_distance])
             exe.append(['v', i*(self.fish_len + (self.step_lap_count - 1) * self.step_lap_distance)])
@@ -101,6 +108,6 @@ jp = JobProfile()
 jp.getStepLapInfo()
 jp.getLengthList()
 jp.createDict()
-# for i in sorted(jp.exe, key = lambda x: x[1]):
-#     print(i[0], '--', i[1])
+for i in sorted(jp.exe, key = lambda x: x[1]):
+    print(i[0], '--', i[1])
 jp.execute()
