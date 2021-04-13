@@ -566,18 +566,24 @@ class JobProfile():
         tool_list = []
         with open('../cut_program_input/' + name, 'r') as fp:
             data = json.load(fp)
+        print('Program look like :')
         for i in data:
             #print(i ,'--' , data[i])
             if data[i]['name'] == Names.HOLE:
+                print(' o ', end='')
                 tool_list.append(Hole(data[i]))
             elif data[i]['name'] == Names.F0:
+                print(' | ', end='')
                 tool_list.append(F0(data[i]))
             elif data[i]['name'] == Names.V_NOTCH:
+                print(' v ', end='')
                 tool_list.append(Vnotch(data[i]))
             elif data[i]['name'] == Names.FM45:
+                print('\\', end='')
                 tool_list.append(Fm45(data[i]))
             elif data[i]['name'] == Names.FP45:
-                tool_list.append(Fp45(data[i]))
+                print('/', end='')
+        print()
                 
         self.tool_list = tool_list
         
@@ -711,9 +717,20 @@ class JobProfile():
                                                     'Sheet Count','Over-cut +45',
                                                     'Over-cut -45'])
         df.index += 1
-        temp = pd.ExcelWriter('../cut_program_output/CutFeed_1.xlsx')
+        while True:
+            file_name = input('Enter output-file name.')
+            if file_name in os.listdir('../cut_program_output/'):
+                con = input('File already exists do you want to overwrite ? (y or n) : ' )
+                if con == 'y':
+                    break
+                elif con == 'n':
+                    continue
+            else:
+                break
+        temp = pd.ExcelWriter('../cut_program_output/' + file_name + '.xlsx')
         df.to_excel(temp)
         temp.save()
+                
         
 
 ###############################################################################
