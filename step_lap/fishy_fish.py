@@ -33,7 +33,14 @@ class JobProfile():
         self.length_list = []
         self.fish_len = 0
         self.hole = []
-            
+        self.layers = 1
+        
+    def getLayers(self):
+        while True:
+            try:
+                self.layers = int(input('Enter layers : '))
+            except ValueError as err:
+                print(err)
     
     def getStepLapInfo(self):
         self.step_lap_count = int(input('Enter step-lap count : '))
@@ -57,15 +64,21 @@ class JobProfile():
     def createDict(self):
         exe = []
         self.pattern_length = self.step_lap_count*(self.fish_len + (self.step_lap_count - 1)*self.step_lap_distance )
-        for i in range(self.step_lap_count):
+        d = self.step_lap_distance
+        k = self.k
+        l = self.fish_len
+        m = self.layers
+        for i in range(self.step_lap_count*m):
             if len(self.hole) > 0:
                 for j in self.hole:
                     #exe.append(['h', j + (2*self.k - i + 2*self.k*i)*self.step_lap_distance + i*self.fish_len])
-                    exe.append(['h',j + i*self.fish_len + self.step_lap_distance*(2*self.k*i + 2*self.k - i)])
-            exe.append(['fm45', i*self.fish_len + (3+i)*self.k*self.step_lap_distance])
-            exe.append(['fp45',(i+1)*self.fish_len + (3+i)*self.k*self.step_lap_distance])
+                    #exe.append(['h',j + i*self.fish_len + self.step_lap_distance*(2*self.k*i + 2*self.k - i)])
+                    exe.append(['h', i*(l+2*k*d) + j + (2*k - i//m)*d])
+            exe.append(['fm45', i*self.fish_len + (3+i//m)*self.k*self.step_lap_distance])
+            exe.append(['fp45',(i+1)*self.fish_len + (3+i//m)*self.k*self.step_lap_distance])
             exe.append(['v', i*(self.fish_len + (self.step_lap_count - 1) * self.step_lap_distance)])
         self.exe = exe
+        self.pattern_length *= m
         
     def execute(self):
         for i in self.exe:
@@ -107,6 +120,7 @@ class JobProfile():
 jp = JobProfile()
 jp.getStepLapInfo()
 jp.getLengthList()
+jp.getLayers()
 jp.createDict()
 for i in sorted(jp.exe, key = lambda x: x[1]):
     print(i[0], '--', i[1])
