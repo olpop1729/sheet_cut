@@ -38,6 +38,10 @@ class Config:
     OUTPUT_FILE_NAME = 'CutFeed_'
     LIST_NO = ['no', 'n','not', '0','negative','incorrect']
     LIST_YES = ['yes', 'y', 'affirmative', 'correct', '1']
+    EXCEL_COLUMNS = ['Feed Dist', 'Vnotch Trav Dist', 'After Shear feed Tip Cut',
+                     'Tool', 'Tool no', 'Start Index', 'End Index',
+                     'Job Shape', 'No of Steps', 'Sheet Count', 'P45 OverCut', 
+                     'M45 OverCut', 'Yoke Len', 'Leg Len', 'Cnetral Limb Len']
     TOOL_NAME_MAP = {'h':['Hole Punch', DISTANCE_HOLE_VNOTCH,2],
                      'v':['V Notch', DISTANCE_SHEAR_VNOTCH,1],
                      'fm45':['Full Cut -45',4],
@@ -583,6 +587,7 @@ class JobProfile():
                 tool_list.append(Fm45(data[i]))
             elif data[i]['name'] == Names.FP45:
                 print('/', end='')
+                tool_list.append(Fp45(data[i]))
         print()
                 
         self.tool_list = tool_list
@@ -711,7 +716,6 @@ class JobProfile():
                                               tool_number, start_index ,
                                               end_index, sheet_count,[0],[0],
                                               fillvalue=''))
-        cut_feed.insert(0,(-5500,0,0,0,0,0,0,0,0))
         df = pd.DataFrame(data = cut_feed, columns=['Feed Length','V-Axis','Tool Name',
                                                     'Tool No.', 'Start Index','End Index',
                                                     'Sheet Count','Over-cut +45',
