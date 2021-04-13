@@ -1,0 +1,63 @@
+{
+    "0": {
+        "pos": 0,
+        "step_lap_count": 3,
+        "step_lap_distance": 10,
+        "step_lap_vector": [
+            10,
+            0,
+            -10
+        ],
+        "step_lap_counter": 0,
+        "is_front": true,
+        "is_rear": false,
+        "front_open": true,
+        "rear_open": false,
+        "rear_step_lap_counter": 2,
+        "name": "fp45"
+    },
+    "1": {
+        "pos": 0,
+        "step_lap_count": 1,
+        "step_lap_distance": 0,
+        "step_lap_vector": [],
+        "step_lap_counter": 0,
+        "is_front": false,
+        "is_rear": false,
+        "name": "v",
+        "lateral_shift_count": 1,
+        "lateral_shift_counter": 0,
+        "lateral_shift_vector": [],
+        "lateral_shift_distance": 0,
+        "rear_step_lap_counter": 0,
+        "is_open": false
+    },
+    "2": {
+        "pos": 0,
+        "step_lap_count": 1,
+        "step_lap_distance": 0,
+        "step_lap_vector": [],
+        "step_lap_counter": 0,
+        "is_front": false,
+        "is_rear": false,
+        "name": "h",
+        "is_open": false
+    },
+    "3": {
+        "pos": 0,
+        "step_lap_count": 3,
+        "step_lap_distance": 10,
+        "step_lap_vector": [
+            10,
+            0,
+            -10
+        ],
+        "step_lap_counter": 2,
+        "is_front": false,
+        "is_rear": true,
+        "front_open": false,
+        "rear_open": true,
+        "rear_step_lap_counter": 0,
+        "name": "fp45"
+    }
+}

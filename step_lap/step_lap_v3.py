@@ -8,6 +8,7 @@ Created on Tue Mar 23 14:58:56 2021
 import os
 import pandas as pd
 import itertools
+import json
 
 # user inputs. always keep the case lower. keep the encodings at last
 TOOL_HOLE = ['hole','h',0]
@@ -121,8 +122,8 @@ class Labels:
 #                       THE TOOL CLASSES
 
 class Tool():
-    def __init__(self, pos=0):
-        self.pos = pos
+    def __init__( self ):
+        self.pos = 0
         self.step_lap_count = 1
         self.step_lap_distance = 0
         self.step_lap_vector = []
@@ -144,12 +145,12 @@ class Tool():
         else:
             self.is_rear = True
         
-    def hasStepLap(self):
+    def hasStepLap( self ):
         if self.step_lap_count > 1:
             return True
         return False
         
-    def getStepLapCount(self):
+    def getStepLapCount( self ):
         while True:
             try:
                 val = int(input(Labels.get_step_lap_count))
@@ -204,14 +205,24 @@ class Tool():
             self.step_lap_counter = self.step_lap_counter % self.step_lap_count
         
 class Hole(Tool):
-    def __init__(self):
+    def __init__(self, var_dict = None):
         super().__init__()
         self.name = Names.HOLE
         self.is_open = False
+        if var_dict:
+            self.name = var_dict['name']
+            self.is_open = var_dict['is_open']
+            self.pos = var_dict['pos']
+            self.step_lap_distance = var_dict['step_lap_distance']
+            self.step_lap_count = var_dict['step_lap_count']
+            self.step_lap_vector = var_dict['step_lap_vector']
+            self.step_lap_counter = var_dict['step_lap_counter']
+            self.is_front = var_dict['is_front']
+            self.is_rear = var_dict['is_rear']
     
         
 class Vnotch(Tool):
-    def __init__(self):
+    def __init__(self, var_dict = None):
         super().__init__()
         self.name = Names.V_NOTCH
         self.lateral_shift_count = 1
@@ -220,6 +231,22 @@ class Vnotch(Tool):
         self.lateral_shift_distance = 0
         self.rear_step_lap_counter = 0
         self.is_open = False
+        
+        if var_dict:
+            self.name = var_dict['name']
+            self.is_open = var_dict['is_open']
+            self.pos = var_dict['pos']
+            self.step_lap_distance = var_dict['step_lap_distance']
+            self.step_lap_count = var_dict['step_lap_count']
+            self.step_lap_vector = var_dict['step_lap_vector']
+            self.step_lap_counter = var_dict['step_lap_counter']
+            self.is_front = var_dict['is_front']
+            self.is_rear = var_dict['is_rear']
+            self.lateral_shift_count = var_dict['lateral_shift_count']
+            self.lateral_shift_counter = var_dict['lateral_shift_counter']
+            self.lateral_shift_vector = var_dict['lateral_shift_vector']
+            self.lateral_shift_distance = var_dict['lateral_shift_distance']
+            self.rear_step_lap_counter = var_dict['rear_step_lap_counter']
         
     def incremenLateralShiftCounter(self):
         if self.is_open:
@@ -302,11 +329,10 @@ class Vnotch(Tool):
                                       self.lateral_shift_count//2 + 1)]
         
 class FullCut(Tool):
-    def __init__(self, is_front=False, is_rear=False, 
-                 front_open=False, rear_open=False):
+    def __init__( self ):
         super().__init__()
-        self.front_open = front_open
-        self.rear_open = rear_open
+        self.front_open = False
+        self.rear_open = False
         self.rear_step_lap_counter = 0
         
     # def generateStepLapVector(self):
@@ -355,20 +381,56 @@ class FullCut(Tool):
             self.rear_open = True
             
 class Fm45(FullCut):
-    def __init__(self):
+    def __init__(self, var_dict=None):
         super().__init__()
         self.name = Names.FM45
+        if var_dict:
+            self.name = var_dict['name']
+            self.pos = var_dict['pos']
+            self.step_lap_distance = var_dict['step_lap_distance']
+            self.step_lap_count = var_dict['step_lap_count']
+            self.step_lap_vector = var_dict['step_lap_vector']
+            self.step_lap_counter = var_dict['step_lap_counter']
+            self.is_front = var_dict['is_front']
+            self.is_rear = var_dict['is_rear']
+            self.front_open = var_dict['front_open']
+            self.rear_open = var_dict['rear_open']
+            self.rear_step_lap_counter = var_dict['rear_step_lap_counter']
         
         
 class Fp45(FullCut):
-    def __init__(self):
+    def __init__(self, var_dict=None):
         super().__init__()
         self.name = Names.FP45
+        if var_dict:
+            self.name = var_dict['name']
+            self.pos = var_dict['pos']
+            self.step_lap_distance = var_dict['step_lap_distance']
+            self.step_lap_count = var_dict['step_lap_count']
+            self.step_lap_vector = var_dict['step_lap_vector']
+            self.step_lap_counter = var_dict['step_lap_counter']
+            self.is_front = var_dict['is_front']
+            self.is_rear = var_dict['is_rear']
+            self.front_open = var_dict['front_open']
+            self.rear_open = var_dict['rear_open']
+            self.rear_step_lap_counter = var_dict['rear_step_lap_counter']
         
 class F0(FullCut):
-    def __init__(self):
+    def __init__(self, var_dict=None):
         super().__init__()
         self.name = Names.F0
+        if var_dict:
+            self.name = var_dict['name']
+            self.pos = var_dict['pos']
+            self.step_lap_distance = var_dict['step_lap_distance']
+            self.step_lap_count = var_dict['step_lap_count']
+            self.step_lap_vector = var_dict['step_lap_vector']
+            self.step_lap_counter = var_dict['step_lap_counter']
+            self.is_front = var_dict['is_front']
+            self.is_rear = var_dict['is_rear']
+            self.front_open = var_dict['front_open']
+            self.rear_open = var_dict['rear_open']
+            self.rear_step_lap_counter = var_dict['rear_step_lap_counter']
 
 ###############################################################################
 ###############################################################################
@@ -498,6 +560,47 @@ class JobProfile():
         if tool_list[-1].name != tool_list[0].name:
             Labels.printError(Labels.incorrect_tool_input)
             os.exit()
+        self.dumpCutProgram(tool_list)
+        
+    def loadCutProgram(self, name):
+        tool_list = []
+        with open('../cut_program_input/' + name, 'r') as fp:
+            data = json.load(fp)
+        for i in data:
+            #print(i ,'--' , data[i])
+            if data[i]['name'] == Names.HOLE:
+                tool_list.append(Hole(data[i]))
+            elif data[i]['name'] == Names.F0:
+                tool_list.append(F0(data[i]))
+            elif data[i]['name'] == Names.V_NOTCH:
+                tool_list.append(Vnotch(data[i]))
+            elif data[i]['name'] == Names.FM45:
+                tool_list.append(Fm45(data[i]))
+            elif data[i]['name'] == Names.FP45:
+                tool_list.append(Fp45(data[i]))
+                
+        self.tool_list = tool_list
+        
+    
+    def dumpCutProgram(self, tool_list):
+        data = {}
+        names = os.listdir('../cut_program_input/')
+        name = ''
+        while True:
+            name =  input('Enter file name : ')
+            if name in names:
+                con = input('File name already exists. Do you want to continue ? (y or n) - ')
+                if con == 'y':
+                    break
+                continue
+            else:
+                with open('../cut_program_input/'+name, 'w') as fp:
+                    for i in range(len(tool_list)):
+                        data[i] = vars(tool_list[i])
+                    fp.write(json.dumps(data, indent=4))
+                    
+                break
+            
         
     def updateLengths(self):
         final_vnotch_axis = []
@@ -619,15 +722,30 @@ class JobProfile():
 
 #                           EXECUTION BLOCK
 
-job_profile = JobProfile()
-job_profile.getToolList()
-job_profile.updateStepLap()
-job_profile.getLengthList()
-job_profile.getLayers()
-job_profile.updateLengths()
-job_profile.createExecutableToolList()
+jp = JobProfile()
+opt = input('1 - Input from CLI.\n2 - Input from json.\nEnter Option no. - ')
+if opt == '1':
+    jp.getToolList()
+elif opt == '2':
+    names = os.listdir('../cut_program_input/')
+    for i in range(len(names)):
+        print((i+1) , ' - ',  names[i])
+    name = input('Enter file index/name : ')
+    try:
+        name = int(name)
+        jp.loadCutProgram(names[name-1])
+    except ValueError:
+        try:
+            jp.loadCutProgram(name)
+        except IOError as ioerr:
+            print(ioerr)
 
-job_profile.execute()
+jp.updateStepLap()
+jp.getLengthList()
+jp.getLayers()
+jp.updateLengths()
+jp.createExecutableToolList()
+jp.execute()
 
 
 

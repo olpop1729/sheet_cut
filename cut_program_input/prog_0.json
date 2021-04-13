@@ -1,0 +1,158 @@
+{
+    "0": {
+        "pos": 0,
+        "step_lap_count": 5,
+        "step_lap_distance": 10,
+        "step_lap_vector": [
+            20,
+            10,
+            0,
+            -10,
+            -20
+        ],
+        "step_lap_counter": 0,
+        "is_front": true,
+        "is_rear": false,
+        "front_open": true,
+        "rear_open": false,
+        "rear_step_lap_counter": 4,
+        "name": "fp45"
+    },
+    "1": {
+        "pos": 0,
+        "step_lap_count": 1,
+        "step_lap_distance": 0,
+        "step_lap_vector": [],
+        "step_lap_counter": 0,
+        "is_front": false,
+        "is_rear": false,
+        "name": "h",
+        "is_open": false
+    },
+    "2": {
+        "pos": 0,
+        "step_lap_count": 1,
+        "step_lap_distance": 0,
+        "step_lap_vector": [],
+        "step_lap_counter": 0,
+        "is_front": true,
+        "is_rear": false,
+        "name": "v",
+        "lateral_shift_count": 5,
+        "lateral_shift_counter": 0,
+        "lateral_shift_vector": [
+            -10,
+            -5,
+            0,
+            5,
+            10
+        ],
+        "lateral_shift_distance": 5,
+        "rear_step_lap_counter": 0,
+        "is_open": true
+    },
+    "3": {
+        "pos": 0,
+        "step_lap_count": 1,
+        "step_lap_distance": 0,
+        "step_lap_vector": [],
+        "step_lap_counter": 0,
+        "is_front": false,
+        "is_rear": false,
+        "name": "h",
+        "is_open": false
+    },
+    "4": {
+        "pos": 0,
+        "step_lap_count": 1,
+        "step_lap_distance": 0,
+        "step_lap_vector": [],
+        "step_lap_counter": 0,
+        "is_front": false,
+        "is_rear": false,
+        "name": "v",
+        "lateral_shift_count": 5,
+        "lateral_shift_counter": 0,
+        "lateral_shift_vector": [
+            -10,
+            -5,
+            0,
+            5,
+            10
+        ],
+        "lateral_shift_distance": 5,
+        "rear_step_lap_counter": 0,
+        "is_open": true
+    },
+    "5": {
+        "pos": 0,
+        "step_lap_count": 1,
+        "step_lap_distance": 0,
+        "step_lap_vector": [],
+        "step_lap_counter": 0,
+        "is_front": false,
+        "is_rear": false,
+        "name": "h",
+        "is_open": false
+    },
+    "6": {
+        "pos": 0,
+        "step_lap_count": 5,
+        "step_lap_distance": 10,
+        "step_lap_vector": [
+            20,
+            10,
+            0,
+            -10,
+            -20
+        ],
+        "step_lap_counter": 0,
+        "is_front": true,
+        "is_rear": true,
+        "front_open": true,
+        "rear_open": true,
+        "rear_step_lap_counter": 0,
+        "name": "fm45"
+    },
+    "7": {
+        "pos": 0,
+        "step_lap_count": 1,
+        "step_lap_distance": 0,
+        "step_lap_vector": [],
+        "step_lap_counter": 0,
+        "is_front": false,
+        "is_rear": false,
+        "name": "h",
+        "is_open": false
+    },
+    "8": {
+        "pos": 0,
+        "step_lap_count": 1,
+        "step_lap_distance": 0,
+        "step_lap_vector": [],
+        "step_lap_counter": 0,
+        "is_front": false,
+        "is_rear": false,
+        "name": "h",
+        "is_open": false
+    },
+    "9": {
+        "pos": 0,
+        "step_lap_count": 5,
+        "step_lap_distance": 10,
+        "step_lap_vector": [
+            20,
+            10,
+            0,
+            -10,
+            -20
+        ],
+        "step_lap_counter": 4,
+        "is_front": false,
+        "is_rear": true,
+        "front_open": false,
+        "rear_open": true,
+        "rear_step_lap_counter": 0,
+        "name": "fp45"
+    }
+}
