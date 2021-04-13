@@ -566,7 +566,7 @@ class JobProfile():
         tool_list = []
         with open('../cut_program_input/' + name, 'r') as fp:
             data = json.load(fp)
-        print('Program look like :')
+        print('Program looks like :')
         for i in data:
             #print(i ,'--' , data[i])
             if data[i]['name'] == Names.HOLE:
@@ -600,7 +600,7 @@ class JobProfile():
                     break
                 continue
             else:
-                with open('../cut_program_input/'+name, 'w') as fp:
+                with open('../cut_program_input/'+name+'.json', 'w') as fp:
                     for i in range(len(tool_list)):
                         data[i] = vars(tool_list[i])
                     fp.write(json.dumps(data, indent=4))
