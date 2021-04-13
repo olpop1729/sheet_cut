@@ -39,6 +39,7 @@ class JobProfile():
         while True:
             try:
                 self.layers = int(input('Enter layers : '))
+                return
             except ValueError as err:
                 print(err)
     
