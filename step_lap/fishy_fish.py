@@ -69,14 +69,17 @@ class JobProfile():
         k = self.k
         l = self.fish_len
         m = self.layers
+        n = self.step_lap_count
         for i in range(self.step_lap_count*m):
             if len(self.hole) > 0:
                 for j in self.hole:
                     #exe.append(['h', j + (2*self.k - i + 2*self.k*i)*self.step_lap_distance + i*self.fish_len])
                     #exe.append(['h',j + i*self.fish_len + self.step_lap_distance*(2*self.k*i + 2*self.k - i)])
                     exe.append(['h', i*(l+2*k*d) + j + (2*k - i//m)*d])
-            exe.append(['fm45', i*self.fish_len + (3+(i//m))*self.k*self.step_lap_distance])
-            exe.append(['fp45',((i//m) + 1)*self.fish_len + (3+(i//m))*self.k*self.step_lap_distance])
+            #exe.append(['fm45', i*self.fish_len + (3+(i//m))*self.k*self.step_lap_distance])
+            #exe.append(['fp45',((i//m) + 1)*self.fish_len + (3+(i//m))*self.k*self.step_lap_distance])
+            exe.append(['fm45', (3-i//m)*k*d + (l+(n-1)*d)*i])
+            exe.append(['fp45', (1-i//m)*k*d + ((l+(n-1)*d)*(i+1))])
             exe.append(['v', i*(self.fish_len + (self.step_lap_count - 1) * self.step_lap_distance)])
         self.exe = exe
         self.pattern_length *= m
