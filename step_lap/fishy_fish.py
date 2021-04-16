@@ -64,7 +64,6 @@ class JobProfile():
     
     def createDict(self):
         exe = []
-        self.pattern_length = self.step_lap_count*(self.fish_len + (self.step_lap_count - 1)*self.step_lap_distance )
         d = self.step_lap_distance
         k = self.k
         l = self.fish_len
@@ -82,7 +81,7 @@ class JobProfile():
             exe.append(['fp45', (k-2*(i//m))*d + ((l+(n-1)*d)*(i+1))])
             exe.append(['v', i*(self.fish_len + (self.step_lap_count - 1) * self.step_lap_distance)])
         self.exe = exe
-        self.pattern_length *= m
+        self.pattern_length = n * ( l + ( n - 1 ) * d ) * m
         
     def execute(self):
         for i in self.exe:
@@ -90,7 +89,7 @@ class JobProfile():
                 i[1] += 4335
             elif i[0] == 'h':
                 i[1] += 1250
-        terminate = 100
+        terminate = 500
         feed = []
         vaxis = []
         operation = []

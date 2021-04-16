@@ -38,7 +38,7 @@ class Config:
     OUTPUT_FILE_NAME = 'CutFeed_'
     LIST_NO = ['no', 'n','not', '0','negative','incorrect']
     LIST_YES = ['yes', 'y', 'affirmative', 'correct', '1']
-    EXCEL_COLUMNS = ['Feed Dist', 'Vnotch Trav Dist', 'After Shear feed Tip Cut',
+    EXCEL_COLUMN_NAMES = ['Feed Dist', 'Vnotch Trav Dist', 'After Shear feed Tip Cut',
                      'Tool', 'Tool no', 'Start Index', 'End Index',
                      'Job Shape', 'No of Steps', 'Sheet Count', 'P45 OverCut', 
                      'M45 OverCut', 'Yoke Len', 'Leg Len', 'Cnetral Limb Len']
@@ -119,6 +119,37 @@ class Labels:
         print(f'{bcolors.FAIL}{Labels.WARNING}No. of layers cannot be negative!{bcolors.ENDC}')
     
     
+    
+class PandasWriterReader:
+    
+    def writeExcel(**kwargs):
+        if len(kwargs.keys()) < len(Config.EXCEL_COLUMN_NAMES):
+            print(f'{bcolors.FAIL}{Labels.ERROR}Insufficient column inputs{bcolors.ENDC}')
+            os.exit()
+        cut_feed = list(itertools.zip_longest(kwargs['feed'], kwargs['v_axis'],kwargs['sec_feed'],
+                    kwargs['operation'], kwargs['tool_number'], 
+                    kwargs['start_index'], kwargs['end_index'], 
+                    kwargs['job_shape'], kwargs['number_of_steps'], 
+                    kwargs['sheet_count'], kwargs['p45_overcut'], 
+                    kwargs['m45_overcut'], kwargs['yoke_len'],
+                    kwargs['leg_len'], kwargs['cl_len']))
+        df = pd.DataFrame(data = cut_feed, columns=Config.EXCEL_COLUMN_NAMES)
+        df.index += 1
+        while True:
+            file_name = input('Enter output-file name : ')
+            if file_name in os.listdir('../cut_program_output/'):
+                con = input('File already exists do you want to overwrite ? (y or n) : ' )
+                if con in ['y', 'yes']:
+                    break
+                else:
+                    continue
+            else:
+                break
+        temp = pd.ExcelWriter('../cut_program_output/' + file_name + '.xlsx')
+        df.to_excel(temp)
+        temp.save()
+        
+
 ###############################################################################
 ###############################################################################
 ###############################################################################
@@ -452,7 +483,7 @@ class JobProfile():
         self.step_lap = 1
         self.executable_tool_list = None
         self.pattern_length = 0
-        self.vnotch_axis = 0
+        self.vnotch_axis = []
         self.layers = 1
         
     def getLayers(self):
@@ -616,6 +647,7 @@ class JobProfile():
     def updateLengths(self):
         final_vnotch_axis = []
         final_length_list = []
+        self.vnotch_axis = [0]*len(self.length_list)
         if self.step_lap > 1:
             for i in range(self.step_lap):
                 new_l_i = []
@@ -708,32 +740,31 @@ class JobProfile():
             if operation[i][0] == 'f':
                 start_index = i
                 break
-        start_index += 3
+        start_index += 2
         end_index = start_index + len(self.length_list) - 1
         start_index = [start_index]
         end_index = [end_index]
-        cut_feed = list(itertools.zip_longest(feed,v_axis, operation, 
-                                              tool_number, start_index ,
-                                              end_index, sheet_count,[0],[0],
-                                              fillvalue=''))
-        df = pd.DataFrame(data = cut_feed, columns=['Feed Length','V-Axis','Tool Name',
-                                                    'Tool No.', 'Start Index','End Index',
-                                                    'Sheet Count','Over-cut +45',
-                                                    'Over-cut -45'])
-        df.index += 1
-        while True:
-            file_name = input('Enter output-file name.')
-            if file_name in os.listdir('../cut_program_output/'):
-                con = input('File already exists do you want to overwrite ? (y or n) : ' )
-                if con == 'y':
-                    break
-                elif con == 'n':
-                    continue
-            else:
-                break
-        temp = pd.ExcelWriter('../cut_program_output/' + file_name + '.xlsx')
-        df.to_excel(temp)
-        temp.save()
+        sec_feed = []
+        number_of_steps = []
+        p45_overcut = []
+        m45_overcut = []
+        yoke_len = []
+        leg_len = []
+        cl_len = []
+        job_shape = []
+        PandasWriterReader.writeExcel(feed=feed, v_axis=v_axis, 
+                                                  sec_feed=sec_feed, 
+                                                  operation=operation, 
+                                                  tool_number=tool_number, 
+                                                  start_index=start_index, 
+                                                  end_index=end_index, 
+                                                  job_shape=job_shape, 
+                                                  number_of_steps=number_of_steps, 
+                                                  sheet_count=sheet_count, 
+                                                  p45_overcut=p45_overcut,
+                                                  m45_overcut=m45_overcut, 
+                                                  yoke_len=yoke_len, 
+                                                  leg_len=leg_len, cl_len=cl_len)
                 
         
 
@@ -743,39 +774,37 @@ class JobProfile():
 
 #                           EXECUTION BLOCK
 
-jp = JobProfile()
-opt = input('1 - Input from CLI.\n2 - Input from json.\nEnter Option no. - ')
-if opt == '1':
-    jp.getToolList()
-elif opt == '2':
-    names = os.listdir('../cut_program_input/')
-    for i in range(len(names)):
-        print((i+1) , ' - ',  names[i])
-    name = input('Enter file index/name : ')
-    try:
-        name = int(name)
-        jp.loadCutProgram(names[name-1])
-    except ValueError:
+def main():
+    jp = JobProfile()
+    opt = input('1 - Input from CLI.\n2 - Input from json.\nEnter Option no. - ')
+    if opt == '1':
+        jp.getToolList()
+    elif opt == '2':
+        names = os.listdir('../cut_program_input/')
+        for i in range(len(names)):
+            print((i+1) , ' - ',  names[i])
+        name = input('Enter file index/name : ')
         try:
-            jp.loadCutProgram(name)
-        except IOError as ioerr:
-            print(ioerr)
+            name = int(name)
+            jp.loadCutProgram(names[name-1])
+        except ValueError:
+            try:
+                jp.loadCutProgram(name)
+            except IOError as ioerr:
+                print(ioerr)
+    
+    jp.updateStepLap()
+    jp.getLengthList()
+    jp.getLayers()
+    jp.updateLengths()
+    print(jp.tool_list)
+    print(jp.length_list)
+    jp.createExecutableToolList()
+    jp.execute()
+    
 
-jp.updateStepLap()
-jp.getLengthList()
-jp.getLayers()
-jp.updateLengths()
-jp.createExecutableToolList()
-jp.execute()
 
-
-
-
-
-
-
-
-
+main()
 
 
 

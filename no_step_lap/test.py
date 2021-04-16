@@ -1,4 +1,4 @@
-import inputs
+#import inputs
 import pandas as pd
 
 dav = 4335
@@ -10,7 +10,16 @@ coil_start_pos = 0
 cdav = dav + coil_start_pos
 cdhv = dhv + coil_start_pos
 
-tool_name_map = {'h':['Hole Punch', cdhv],'v':['V Notch',coil_start_pos],'fp45':['Full Cut +45',cdav],'fm45':['Full Cut -45',cdav],'f0':['Full Cut 0', cdav],'pfr':['Partial Front Right',cdav],'pfl':['Partial Front Left', cdav],'prr':['Partial Rear Right',cdav],'prl':['Partial Rear Left',cdav]}
+tool_name_map = {'h':['Hole Punch', cdhv],
+                 'v':['V Notch',coil_start_pos],
+                 'fp45':['Full Cut +45',cdav],
+                 'fm45':['Full Cut -45',cdav],
+                 'f0':['Full Cut 0', cdav],
+                 'pfr':['Partial Front Right',cdav],
+                 'pfl':['Partial Front Left', cdav],
+                 'prr':['Partial Rear Right',cdav],
+                 'prl':['Partial Rear Left',cdav]
+                 }
 
 
 #for i in tool_name_map.keys():
@@ -59,7 +68,7 @@ while True:
         name = input('Enter name - ')
         pos = input('Enter position - ')
         if name[0] == 'p':
-            pdist = int(input('Enter distance to the corresponding full cut/v notch - '))
+            pdist = int(input('Enter height of the partial cut - '))
         if name not in tool_name_map.keys():
             print('Invalid tool name')
             continue
@@ -131,7 +140,7 @@ while start < coil_length:
 
 cut_feed = list(zip(primary_feed,secondary_feed,operation))
 df = pd.DataFrame(data = cut_feed, columns=['Primary Feed', 'Secondary Feed','Operation'])
-temp = pd.ExcelWriter('../cut_program_output/CutFeed.xlsx')
+temp = pd.ExcelWriter('../cut_program_output/CutFeedTip.xlsx')
 df.to_excel(temp)
 temp.save()
 del temp

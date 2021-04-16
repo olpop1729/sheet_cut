@@ -37,8 +37,8 @@ class Config:
 
 class Spear():
     
-    def __init__(self, name='s', pos=0):
-        self.name = name
+    def __init__(self, pos=0):
+        self.name = 's'
         self.pos = pos
         self.step_lap_count = 1
         self.step_lap_counter = 0
@@ -101,6 +101,12 @@ class Hole():
         self.name = name
         self.pos = 0
         
+class Vnotch():
+    
+    def __init__(self, name='v'):
+        self.name = name
+        self.pos = 0
+        
         
 class JobProfile():
     
@@ -110,6 +116,7 @@ class JobProfile():
         self.step_lap = 1
         self.pattern_length = 0
         self.executable_tool_list = None
+        self.executable_length_list = None
         self.layers = 1
         
     def getLayers(self):
@@ -136,6 +143,8 @@ class JobProfile():
                         tool_list[-1].generateStepLapVector()
                 elif name in ['hole','h']:
                     tool_list.append(Hole())
+                elif name in ['vnotch', 'v']:
+                    tool_list.append(Vnotch())
                     
             else:
                 self.tool_list = tool_list
@@ -189,12 +198,21 @@ class JobProfile():
         modulo = len(self.tool_list) - 1
         for i in range(len(self.length_list)):
             tool = self.tool_list[i % modulo]
+            
             if isinstance(tool, Spear):
-                inner.append(['fp45', position + 4335])
-                inner.append(['fm45', position + 4335])
-                inner.append(['v',position + 0])
+                inner.append(['fp45', position + Config.DISTANCE_SHEAR_VNOTCH + 
+                              + Config.COIL_START_POSITION])
+                inner.append(['fm45', position + Config.DISTANCE_SHEAR_VNOTCH] + 
+                             Config.COIL_START_POSITION)
+                inner.append(['v',position + Config.COIL_START_POSITION])
+                
             elif isinstance(tool, Hole):
-                inner.append(['h', position + 1250])
+                inner.append(['h', position + Config.DISTANCE_HOLE_VNOTCH
+                              + Config.COIL_START_POSITION])
+                
+            elif isinstance(tool, Vnotch):
+                inner.append(['v', position + Config.COIL_START_POSITION])
+                
             position += self.length_list[i]
         self.pattern_length = position
         self.executable_tool_list = inner

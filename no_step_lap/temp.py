@@ -248,7 +248,7 @@ remove_many = Button(root, text="Delete Selected", command=remove_many)
 remove_many.pack(side=LEFT,pady=5)
 
 temp_label = Label(root, text="")
-temp_label.pack(side=LEFT,.pady=5)
+temp_label.pack(side=LEFT,pady=5)
 
 # Bindings
 #my_tree.bind("<Double-1>", clicker)
