@@ -45,7 +45,10 @@ class JobProfile():
     
     def getStepLapInfo(self):
         self.step_lap_count = int(input('Enter step-lap count : '))
-        self.k = self.step_lap_count // 2
+        if input('Skewed ? : ').lower() in ['y', 'yes']:
+            self.k = self.step_lap_count // 2 + 1
+        else:
+            self.k = self.step_lap_count // 2
         self.step_lap_distance = float(input('Enter step-lap distance : '))
         
     def getLengthList(self):
