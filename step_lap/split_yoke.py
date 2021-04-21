@@ -289,7 +289,7 @@ class JobProfile:
                     i[1] -= closest_cut
                     
             terminate -= 1
-        data = list(zip(operation, feed))
+        data = list(zip(feed, operation))
         df = pd.DataFrame(data = data, columns=['feed', 'operation'])
         df.to_csv('../cut_program_output/split_yoke.csv')
         
