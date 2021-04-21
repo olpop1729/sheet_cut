@@ -21,20 +21,20 @@ int main(int argc, char **argv) {
 	//number of v's
 	int nv = 2;
 	//v positions
-	int v[2];
+	int v[nv];
 	v[0] = 200;
 	v[1] = 600;
 
 	//number of +45's
 	int np45=1;
 	//position of +45's
-	int p45[1];
+	int p45[np45];
 	p45[0] = 0;
 
 	//number of -45's
 	int nm45=1;
 	//postion of -45's
-	int m45[1];
+	int m45[nm45];
 	m45[0] = 400;
 
 	//distance between 45 and V cutters
