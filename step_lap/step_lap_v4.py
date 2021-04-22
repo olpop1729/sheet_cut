@@ -115,12 +115,46 @@ class Tool():
 class Hole(Tool):
     def __init__(self):
         pass
+    
+    def lengthyfy(self, pos=0) -> list:
+        pass
 
 #-----------------------------------------------------------------------------
 
 class VNotch(Tool):
     def __init__(self):
+        self.v_step_lap_count = 1
+        self.v_step_lap_distance = 0
+        self.v_step_lap_vector = []
+        self.v_step_lap_counter = 0
+        
+    def lengthyfy(self, pos=0) -> list:
         pass
+        
+    def getVerticalStepLapCount(self):
+        while True:
+            count = input('Enter vertical step-lap count : ')
+            try:
+                count = int(count)
+                self.v_step_lap_count = count
+                return
+            except ValueError as err:
+                print(err)
+                
+    def getVerticalStepLapDistance(self):
+        while True:
+            dist = input('Enter vertical step-lap distance : ')
+            try:
+                dist = float(dist)
+                self.v_step_lap_distance = dist
+                return
+            except ValueError as err:
+                print(err)
+                
+    def generateVerticalStepLapVector(self):
+        self.v_step_lap_vector = [i * self.v_step_lap_distance for i in 
+                                  range(self.v_step_lap_count//2 ,
+                                      -self.v_step_lap_count//2, -1)]
     
 #-----------------------------------------------------------------------------
 
@@ -128,12 +162,18 @@ class Fm45(Tool):
     
     def __init__(self):
         pass
+    
+    def lengthyfy(self, pos=0) -> list:
+        pass
 
 #-----------------------------------------------------------------------------
 
 class Fp45(Tool):
     
     def __init__(self):
+        pass
+    
+    def lengthyfy(self, pos=0) -> list:
         pass
 
 #-----------------------------------------------------------------------------
@@ -148,6 +188,9 @@ class Spear(Tool):
         self.major_cut = []
         #self.distance_from_edge = 0
         
+    def lengthyfy(self, pos=0) -> list:
+        pass
+        
     def setMajorCut(self):
         if self.distance_from_eq > 0:
             self.major_cut = [-45]
@@ -160,9 +203,11 @@ class Spear(Tool):
         self.v_step_lap_distance = float(input('Enter step-lap distance : '))
         
     def generateVerticalStepLapVector(self):
-        self.v_step_lap_vector = [i * self.v_step_lap_distance for i in 
+        vector = [i * self.v_step_lap_distance for i in 
                                   range(self.v_step_lap_count//2 ,
                                       -self.v_step_lap_count//2, -1)]
+        self.v_step_lap_vector = [i + self.distance_from_eq for i in vector]
+        
         
     def getVerticalStepLapCount(self):
         while True:
@@ -175,6 +220,7 @@ class Spear(Tool):
                 
     def getDistanceFromEq(self):
         self.distance_from_eq = float(input('Enter distance from EQ : '))
+        self.setMajorCut()
     
     
 #-----------------------------------------------------------------------------
@@ -205,6 +251,9 @@ class JobProfile():
     def __init__(self):
         self.coil_width = 0
         self.raw_tool_list = []
+        
+    def checkCompatible(self):
+        pass
         
     def getRawToolList(self):
         while True:

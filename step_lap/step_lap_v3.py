@@ -71,6 +71,7 @@ class Names:
     FP45 = 'fp45'
     FM45 = 'fm45'
     F0 = 'f0'
+    SPEAR = 's'
 
 class Labels:
     ERROR = 'ERROR: '
@@ -466,6 +467,28 @@ class F0(FullCut):
             self.front_open = var_dict['front_open']
             self.rear_open = var_dict['rear_open']
             self.rear_step_lap_counter = var_dict['rear_step_lap_counter']
+            
+            
+class Spear(Tool):
+    def __init__(self, var_dict=None):
+        super().__init__()
+        self.name = Names.SPEAR
+        if var_dict:
+            self.name = var_dict['name']
+            self.pos = var_dict['pos']
+            self.step_lap_distance = var_dict['step_lap_distance']
+            self.step_lap_count = var_dict['step_lap_count']
+            self.step_lap_vector = var_dict['step_lap_vector']
+            self.step_lap_counter = var_dict['step_lap_counter']
+            self.is_front = var_dict['is_front']
+            self.is_rear = var_dict['is_rear']
+            self.front_open = var_dict['front_open']
+            self.rear_open = var_dict['rear_open']
+            self.rear_step_lap_counter = var_dict['rear_step_lap_counter']
+    
+    def lengthyfy(self):
+        return ['v', self.pos], ['f', self.pos]
+    
 
 ###############################################################################
 ###############################################################################
@@ -776,22 +799,32 @@ class JobProfile():
 
 def main():
     jp = JobProfile()
-    opt = input('1 - Input from CLI.\n2 - Input from json.\nEnter Option no. - ')
+    opt = input('1 - Input from CLI.\n2 - Input from json.\n\nEnter Option no. : ')
     if opt == '1':
         jp.getToolList()
     elif opt == '2':
-        names = os.listdir('../cut_program_input/')
-        for i in range(len(names)):
-            print((i+1) , ' - ',  names[i])
-        name = input('Enter file index/name : ')
-        try:
-            name = int(name)
-            jp.loadCutProgram(names[name-1])
-        except ValueError:
+        names = [i for i in os.listdir('../cut_program_input/') if i.endswith('json')]
+        while True:
+            for i in range(len(names)):
+                print((i+1) , ' - ',  names[i])
+            name = input('\nEnter file index/name : ')
             try:
-                jp.loadCutProgram(name)
-            except IOError as ioerr:
-                print(ioerr)
+    
+                name = int(name)
+                jp.loadCutProgram(names[name-1])
+                inp = input('Continue ? (y or n) : ').lower()
+                if inp in ['y','yes','1']:
+                    break
+                continue
+    
+            except ValueError:
+                try:
+                    jp.loadCutProgram(name)
+                    inp = input('Continue ? (y or n) : ').lower()
+                    if inp in ['y','yes','1']:
+                        break
+                except IOError as ioerr:
+                    print(ioerr)
     
     jp.updateStepLap()
     jp.getLengthList()
