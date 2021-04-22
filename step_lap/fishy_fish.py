@@ -77,7 +77,7 @@ class JobProfile():
                 for j in self.hole:
                     #exe.append(['h', j + (2*self.k - i + 2*self.k*i)*self.step_lap_distance + i*self.fish_len])
                     #exe.append(['h',j + i*self.fish_len + self.step_lap_distance*(2*self.k*i + 2*self.k - i)])
-                    exe.append(['h', i*(l+2*k*d) + j + (2*k - i//m)*d])
+                    exe.append(['h', i*(l+(n - 1)*d) + j + (2*k - i//m)*d])
             #exe.append(['fm45', i*self.fish_len + (3+(i//m))*self.k*self.step_lap_distance])
             #exe.append(['fp45',((i//m) + 1)*self.fish_len + (3+(i//m))*self.k*self.step_lap_distance])
             exe.append(['fm45', (3*k-2*(i//m))*d + (l+(n-1)*d)*i])
@@ -129,5 +129,7 @@ jp.getLengthList()
 jp.getLayers()
 jp.createDict()
 for i in sorted(jp.exe, key = lambda x: x[1]):
+    if i[0] == 'h':
+        continue
     print(i[0], '--', i[1])
 jp.execute()
