@@ -33,17 +33,26 @@ def listCutPrograms():
         print(f'{i+1} - {names[i]}')
     return names
 
-def plotFm45(pos):
+def plotFm45(pos, linestyle=None):
     y = np.linspace(-1, 1, 10)
-    plt.plot(y+pos, y, color='blue')
+    if linestyle:
+        plt.plot(y+pos, y, color='blue', linestyle=linestyle)
+    else:
+        plt.plot(y+pos, y, color='blue')
     
-def plotFp45(pos):
+def plotFp45(pos, linestyle=None):
     y = np.linspace(-1, 1, 10)
-    plt.plot(-y+pos, y, color='blue')
+    if linestyle:
+        plt.plot(-y+pos, y, color='blue', linestyle=linestyle)
+    else:
+        plt.plot(-y+pos, y, color='blue')
     
-def plotF0(pos):
+def plotF0(pos, linestyle=None):
     y = np.linspace(-1, 1, 10)
-    plt.plot(pos, y, color='blue')
+    if linestyle:
+        plt.plot(pos, y, color='blue', linestyle=linestyle)
+    else:
+        plt.plot(pos, y, color='blue')
     
 def plotVnotch(pos):
     y = np.linspace(0,1, 5)
@@ -61,10 +70,11 @@ def annotate(a, b, count):
 def main():
     while 1:
         names = listCutPrograms()
-        file_index = int(input('\n Enter index (q to exit): '))
+        file_index = input('\n Enter index (q to exit): ')
         if file_index == 'q':
             print('Bye ...')
             sys.exit()
+        file_index = int(file_index)
         x = [i for i in range(100)]
         top = [1]*100
         bot = [-1]*100
@@ -78,13 +88,104 @@ def main():
             pos = 3*i + 1
             curr_tool = data[str(i)]
             if curr_tool['name'] == 'fm45':
+                if curr_tool['step_lap_count'] > 1:
+                    if curr_tool['is_front'] and not curr_tool['is_rear']:
+                        if curr_tool['front_open']:
+                            plotFm45(pos - 0.2)
+                            plotFm45(pos - 0.4)
+                        else:
+                            plotFm45(pos + 0.2, 'dotted')
+                            plotFm45(pos + 0.4, 'dotted')
+                    elif curr_tool['is_rear'] and not curr_tool['is_front']:
+                        if curr_tool['rear_open']:
+                            plotFm45(pos + 0.2)
+                            plotFm45(pos + 0.4)
+                        else:
+                            plotFm45(pos - 0.2, 'dotted')
+                            plotFm45(pos - 0.4, 'dotted')
+                    elif curr_tool['is_front'] and curr_tool['is_rear']:
+                        if curr_tool['front_open']:
+                            plotFm45(pos + 0.2)
+                            plotFm45(pos + 0.4)
+                        else:
+                            plotFm45(pos + 0.2, 'dotted')
+                            plotFm45(pos + 0.4, 'dotted')
+                        if curr_tool['rear_open']:
+                            plotFm45(pos - 0.2)
+                            plotFm45(pos - 0.4)
+                        else:
+                            plotFm45(pos - 0.2, 'dotted')
+                            plotFm45(pos - 0.4, 'dotted')
                 plotFm45(pos)
+                
             elif curr_tool['name'] == 'fp45':
+                if curr_tool['step_lap_count'] > 1:
+                    if curr_tool['is_front'] and not curr_tool['is_rear']:
+                            if curr_tool['front_open']:
+                                plotFp45(pos - 0.2)
+                                plotFp45(pos - 0.4)
+                            else:
+                                plotFp45(pos + 0.2, 'dotted')
+                                plotFp45(pos + 0.4, 'dotted')
+                    elif curr_tool['is_rear'] and not curr_tool['is_front']:
+                        if curr_tool['rear_open']:
+                            plotFp45(pos + 0.2)
+                            plotFp45(pos + 0.4)
+                        else:
+                            plotFp45(pos - 0.2, 'dotted')
+                            plotFp45(pos - 0.4, 'dotted')
+                    elif curr_tool['is_front'] and curr_tool['is_rear']:
+                        if curr_tool['front_open']:
+                            plotFp45(pos + 0.2)
+                            plotFp45(pos + 0.4)
+                        else:
+                            plotFp45(pos + 0.2, 'dotted')
+                            plotFp45(pos + 0.4, 'dotted')
+                        if curr_tool['rear_open']:
+                            plotFp45(pos - 0.2)
+                            plotFp45(pos - 0.4)
+                        else:
+                            plotFp45(pos - 0.2, 'dotted')
+                            plotFp45(pos - 0.4, 'dotted')
                 plotFp45(pos)
+                
+                
             elif curr_tool['name'] == 'v':
                 plotVnotch(pos)
+                
+                
             elif curr_tool['name'] == 'f0':
+                if curr_tool['step_lap_count'] > 1:
+                    if curr_tool['is_front'] and not curr_tool['is_rear']:
+                            if curr_tool['front_open']:
+                                plotF0(pos - 0.2)
+                                plotF0(pos - 0.4)
+                            else:
+                                plotF0(pos + 0.2, 'dotted')
+                                plotF0(pos + 0.4, 'dotted')
+                    elif curr_tool['is_rear'] and not curr_tool['is_front']:
+                        if curr_tool['rear_open']:
+                            plotF0(pos + 0.2)
+                            plotF0(pos + 0.4)
+                        else:
+                            plotF0(pos - 0.2, 'dotted')
+                            plotF0(pos - 0.4, 'dotted')
+                    elif curr_tool['is_front'] and curr_tool['is_rear']:
+                        if curr_tool['front_open']:
+                            plotF0(pos + 0.2)
+                            plotF0(pos + 0.4)
+                        else:
+                            plotF0(pos + 0.2, 'dotted')
+                            plotF0(pos + 0.4, 'dotted')
+                        if curr_tool['rear_open']:
+                            plotF0(pos - 0.2)
+                            plotF0(pos - 0.4)
+                        else:
+                            plotF0(pos - 0.2, 'dotted')
+                            plotF0(pos - 0.4, 'dotted')
                 plotF0(pos)
+                
+                
             elif curr_tool['name'] == 'h':
                 plotHole(pos, ax)
             annotate(prev, pos, i)
@@ -95,7 +196,7 @@ def main():
         plt.xlim(0, pos+1)
         plt.ylim(-4,4)
         plt.show()
-                
+
                 
 if __name__ == "__main__":
     main()
