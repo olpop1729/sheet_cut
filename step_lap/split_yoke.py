@@ -5,12 +5,13 @@ Created on Mon Apr 19 23:20:23 2021
 
 @author: omkar
 """
-import os
+import os, sys
 import pandas as pd
+import json
 
 class YokeSplitter:
     
-    def __init__(self):
+    def __init__(self, var_dict=None):
         self.name = 'ys'
         self.pos = 0
         self.slp_count = 1
@@ -18,6 +19,16 @@ class YokeSplitter:
         self.slp_vector = []
         self.slp_counter = 0
         self.front_open = False
+        if var_dict:
+            self.loadFromDict(var_dict)
+            
+    def loadFromDict(self, var):
+        self.pos = var['pos']
+        self.slp_count = var['slp_count']
+        self.slp_distance = var['slp_distance']
+        self.slp_vector = var['slp_vector']
+        self.slp_counter = var['slp_counter']
+        self.front_open = var['front_open']
         
     def lengthyfy(self):
         return 0
@@ -59,7 +70,7 @@ class YokeSplitter:
 
 class Fm45:
     
-    def __init__(self):
+    def __init__(self, var_dict=None):
         self.name = 'fm45'
         self.pos = 0
         self.slp_count = 1
@@ -67,6 +78,16 @@ class Fm45:
         self.slp_vector = []
         self.slp_counter = 0
         self.open = False
+        if var_dict:
+            self.loadFromDict(var_dict)
+            
+    def loadFromDict(self, var):
+        self.pos = var['pos']
+        self.slp_count = var['slp_count']
+        self.slp_distance = var['slp_distance']
+        self.slp_vector = var['slp_vector']
+        self.slp_counter = var['slp_counter']
+        self.open = var['open']
         
     def lengthyfy(self):
         return 0
@@ -107,7 +128,7 @@ class Fm45:
                 
 class Fp45:
     
-    def __init__(self):
+    def __init__(self, var_dict=None):
         self.name = 'fp45'
         self.pos = 0
         self.slp_count = 1
@@ -115,9 +136,23 @@ class Fp45:
         self.slp_vector = []
         self.slp_counter = 0
         self.open = False
+        if var_dict:
+            self.loadFromDict(var_dict)
+            
+    def loadFromDict(self, var):
+        self.pos = var['pos']
+        self.slp_count = var['slp_count']
+        self.slp_distance = var['slp_distance']
+        self.slp_vector = var['slp_vector']
+        self.slp_counter = var['slp_counter']
+        self.open = var['open']
         
     def lengthyfy(self):
         return 0
+    
+    def loadFromDict(var):
+        for i in range(len(var.keys())):
+            pass
     
     def hasStepLap(self) -> bool:
         if self.slp_count > 1:
@@ -155,9 +190,15 @@ class Fp45:
             
 class Hole:
     
-    def __init__(self):
+    def __init__(self, var_dict=None):
         self.name = 'h'
         self.pos = 0
+        if var_dict:
+            self.loadFromDict(var_dict)
+            
+    def loadFromDict(self, var):
+        self.name = var['name']
+        self.pos = var['pos']
         
     def lengthyfy(self):
         return 0
@@ -167,14 +208,98 @@ class Hole:
     
 class JobProfile:
     
-    def __init__(self):
-        self.getToolList()
+    def __init__(self,  tl = None):
+        if tl:
+            self.loadCutProgram()
+        else:
+            self.getToolList()
+            
+    def displayCutProgram(self, name):
+        #dname = '../cut_program_input/split_yoke/' + name
+        print('Display is yet to be implemented ...')
+        return True
+        #inputs = os.listdir(.)
+            
+    def showCutPrograms(self):
+        names = [i for i in os.listdir('../cut_program_input/split_yoke/') if 
+                 i.endswith('json')]
+        while True:
+            for index in range(len(names)):
+                print(f'{index+1} : {names[index]}')
+            index = input('Enter index or name : ')
+            if index == 'q':
+                sys.exit()
+            try : 
+                fi = int(index)
+                if self.displayCutProgram(names[fi-1]):
+                    return names[fi-1]
+                else:
+                    continue
+                
+            except ValueError:
+                try :
+                    if self.displayCutProgram(index):
+                        return index
+                    else :
+                        continue
+                except Exception as e:
+                    print(e)
+                    return                    
+                
+            
+    def loadCutProgram(self):
+        name = self.showCutPrograms()
+        with open('../cut_program_input/split_yoke/' + name, 'r') as fp:
+            data = json.load(fp)
+        tool_list = []
+        for i in data:
+            if data[i]['name'] == 'h':
+                tool = Hole(data[i])
+            elif data[i]['name'] == 'v':
+                tool = Hole(data[i])
+            elif data[i]['name'] == 'ys':
+                tool = YokeSplitter(data[i])
+            elif data[i]['name'] == 'fm45':
+                tool = Fm45(data[i])
+            elif data[i] == 'fp45':
+                tool = Fp45(data[i])
+            else:
+                print('Unrecognized tool. Please check json.')
+                sys.exit()
+            tool_list.append(tool)
+        self.tool_list = tool_list
+                
+        
+    def dumpCutProgram(self,tl):
+        data = {}
+        names = os.listdir('../cut_program_input/split_yoke/')
+        name = ''
+        while True:
+            name =  input('Enter file name (without extension): ')
+            if name.endswith('.json'):
+                print('Do not enter the extension.')
+                continue
+            if name == 'q':
+                sys.exit()
+            if name in names:
+                con = input('File name already exists. Do you want to overwrite ? (y or n) - ')
+                if con == 'y':
+                    break
+                continue
+            break
+            
+        with open('../cut_program_input/split_yoke/'+name+'.json', 'w') as fp:
+            for i in range(len(tl)):
+                data[i] = vars(tl[i])
+            fp.write(json.dumps(data, indent=4))
+                    
         
     def getToolList(self):
         
         tool_list = []
         counter = 0
         while counter < 2:
+            
             tool_name = input('Enter tool name : ')
             if tool_name=='fp45':
                 counter+=1
@@ -213,8 +338,14 @@ class JobProfile:
             
         if tool_list[0].name != tool_list[-1].name:
             print('Start tool - end tool mismatch. Aborting ...')
-            os.exit()
+            sys.exit()
         self.tool_list = tool_list
+        self.dumpCutProgram(tool_list)
+        
+        con = input('Continue execution ? : ').lower()
+        if con == 'y' or con == 'yes':
+            return
+        sys.exit()
         
     def getLengthList(self):
         self.length_list = [float(i) for i in input('Enter lengths : ').split()]
@@ -278,7 +409,7 @@ class JobProfile:
             for i in exe:
                 if i[1] == closest_cut:
                     operation.append(i[0])
-                    i[1] = jp.pl
+                    i[1] = self.pl
                     
                     if repeat:
                         feed.append(0)
@@ -292,13 +423,35 @@ class JobProfile:
         data = list(zip(feed, operation))
         df = pd.DataFrame(data = data, columns=['feed', 'operation'])
         df.to_csv('../cut_program_output/split_yoke.csv')
+       
         
-jp = JobProfile()
-jp.getLengthList()
-jp.getLayers()
-jp.updateLengths()
-jp.execute()
+       
         
+def main():
+    while True:
+        cmd = input('\n 1 - CLI.\n 2 - Json encoded file.\n Enter Option : ')
+        if cmd == '1':
+            jp = JobProfile()
+            jp.getLengthList()
+            jp.getLayers()
+            jp.updateLengths()
+            jp.execute()
+            return
+        elif cmd == '2':
+            jp = JobProfile(1)
+            jp.getLengthList()
+            jp.getLayers()
+            jp.updateLengths()
+            jp.execute()
+            return
+        elif cmd == 'q':
+            return
+        else:
+            print('Incorrect option.')
+            
+            
+if __name__ == "__main__":
+    main()
                 
                 
                 
