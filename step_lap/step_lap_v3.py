@@ -322,18 +322,12 @@ class Vnotch(Tool):
                 Labels.printError(err)
             
     def setStepLapCounter(self):
-        if self.is_open and self.is_rear and not self.is_front:
-            self.rear_step_lap_counter = 0
-        elif self.is_open and self.is_front and not self.is_rear:
-            self.step_lap_counter = 0
-        elif not self.is_open and self.is_rear and not self.is_front:
-            self.rear_step_lap_counter = self.step_lap_count - 1
-        elif not self.is_open and self.is_front and not self.is_rear:
-            self.step_lap_counter = self.step_lap_count - 1
-        elif self.is_front and self.is_rear and self.is_open:
+
+        if self.is_front and self.is_rear and self.is_open:
             self.step_lap_counter = 0
             self.rear_step_lap_counter = self.step_lap_count - 1
-        elif not self.is_front and self.is_rear and self.is_open:
+            
+        elif not self.is_open and self.is_front and self.is_rear:
             self.step_lap_counter = self.step_lap_count - 1
             self.rear_step_lap_counter = 0
     
@@ -548,72 +542,108 @@ class JobProfile():
         
     def getToolList(self):
         tool_list = []
-        while True:
-            cmd_input = input(Labels.add_tool).lower()
-            if cmd_input not in Config.LIST_NO:
-                name = input(Labels.get_name).lower()
+        end_counter = 0
+        while end_counter < 3:
+            # cmd_input = input(Labels.add_tool).lower()
+            # if cmd_input not in Config.LIST_NO:
+            name = input(Labels.get_name).lower()
+            
+            if name in TOOL_HOLE:
+                hole = Hole()
+                if hole.getStepLapCount():
+                    hole.getStepLapDistance()
+                    hole.generateStepLapVector()
+                tool_list.append(hole)
                 
-                if name in TOOL_HOLE:
-                    hole = Hole()
-                    if hole.getStepLapCount():
-                        hole.getStepLapDistance()
-                        hole.generateStepLapVector()
-                    tool_list.append(hole)
-                    
-                elif name in TOOL_V_NOTCH:
-                    vnotch = Vnotch()
-                    vnotch.getIsFront()
-                    vnotch.getIsRear()
-                    vnotch.getIsOpen()
-                    if not vnotch.getStepLapCount():
-                        if vnotch.getLateralShiftCount():
-                            vnotch.getLateralShiftDistance()
-                            vnotch.generateLateralShiftVector()
-                    else:
-                        vnotch.getStepLapDistance()
-                        vnotch.generateStepLapVector()
-                    tool_list.append(vnotch)
-                    
-                elif name in TOOL_P45:
-                    fp45 = Fp45()
-                    fp45.getIsFront()
-                    fp45.getIsRear()
+            elif name in TOOL_V_NOTCH:
+                vnotch = Vnotch()
+                vnotch.is_front = True
+                vnotch.is_rear = True
+                #vnotch.getIsFront()
+                #vnotch.getIsRear()
+                vnotch.getIsOpen()
+                if not vnotch.getStepLapCount():
+                    if vnotch.getLateralShiftCount():
+                        vnotch.getLateralShiftDistance()
+                        vnotch.generateLateralShiftVector()
+                else:
+                    vnotch.getStepLapDistance()
+                    vnotch.generateStepLapVector()
+                tool_list.append(vnotch)
+                
+            elif name in TOOL_P45:
+                fp45 = Fp45()
+                if end_counter == 0:
+                    fp45.is_front = True
+                    fp45.is_rear = False
                     fp45.getFrontOpen()
+                elif end_counter == 1:
+                    fp45.is_front = True
+                    fp45.is_rear = True
                     fp45.getRearOpen()
-                    if fp45.getStepLapCount():
-                        fp45.getStepLapDistance()
-                        fp45.generateStepLapVector()
-                        fp45.setStepLapCounter()
-                    tool_list.append(fp45)
+                    fp45.getFrontOpen()
+                elif end_counter == 2:
+                    fp45.is_front = False
+                    fp45.is_rear = True
+                    fp45.getRearOpen()
                     
-                elif name in TOOL_M45:
-                    fm45 = Fm45()
-                    fm45.getIsFront()
-                    fm45.getIsRear()
+                if fp45.getStepLapCount():
+                    fp45.getStepLapDistance()
+                    fp45.generateStepLapVector()
+                    fp45.setStepLapCounter()
+                tool_list.append(fp45)
+                end_counter+=1
+                
+            elif name in TOOL_M45:
+                fm45 = Fm45()
+                if end_counter == 0:
+                    fm45.is_front = True
+                    fm45.is_rear = False
+                    fm45.getFrontOpen()
+                elif end_counter == 1:
+                    fm45.is_front = True
+                    fm45.is_rear = True
                     fm45.getFrontOpen()
                     fm45.getRearOpen()
-                    if fm45.getStepLapCount():
-                        fm45.getStepLapDistance()
-                        fm45.generateStepLapVector()
-                        fm45.setStepLapCounter()
-                    tool_list.append(fm45)
+                elif end_counter == 2:
+                    fm45.is_front = False
+                    fm45.is_rear = True
+                    fm45.getRearOpen()
                     
-                elif name in TOOL_F0:
-                    f0 = F0()
-                    f0.getIsFront()
-                    f0.getIsRear()
+                if fm45.getStepLapCount():
+                    fm45.getStepLapDistance()
+                    fm45.generateStepLapVector()
+                    fm45.setStepLapCounter()
+                tool_list.append(fm45)
+                end_counter+=1
+                
+            elif name in TOOL_F0:
+                f0 = F0()
+                if end_counter == 0:
+                    f0.is_front = True
+                    f0.is_rear = False
+                    f0.getFrontOpen()
+                elif end_counter == 1:
+                    f0.is_front = True
+                    f0.is_rear = True
                     f0.getFrontOpen()
                     f0.getRearOpen()
-                    if f0.getStepLapCount():
-                        f0.getStepLapDistance()
-                        f0.generateStepLapVector()
-                        f0.setStepLapCounter()
-                    tool_list.append(f0)
-                
-                else:
-                    Labels.warnNameNotFound()
+                elif end_counter == 2:
+                    f0.is_front = False
+                    f0.is_rear = True
+                    f0.getRearOpen()
+                    
+                if f0.getStepLapCount():
+                    f0.getStepLapDistance()
+                    f0.generateStepLapVector()
+                    f0.setStepLapCounter()
+                tool_list.append(f0)
+                end_counter+=1
+            
             else:
-                break
+                Labels.warnNameNotFound()
+            # else:
+            #     break
         self.tool_list = tool_list
         if tool_list[-1].name != tool_list[0].name:
             Labels.printError(Labels.incorrect_tool_input)
@@ -836,9 +866,5 @@ def main():
     jp.execute()
     
 
-
-main()
-
-
-
-
+if __name__ == "__main__":
+    main()
