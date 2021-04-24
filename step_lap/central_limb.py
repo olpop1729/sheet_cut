@@ -7,6 +7,8 @@ Created on Wed Mar 31 21:55:23 2021
 """
 
 import pandas as pd
+import os, sys
+import json
 
 class Config:
     DISTANCE_HOLE_VNOTCH = 1250
@@ -37,15 +39,26 @@ class Config:
 
 class Spear():
     
-    def __init__(self, pos=0):
+    def __init__(self, var_dict=None):
         self.name = 's'
-        self.pos = pos
+        self.pos = 0
         self.step_lap_count = 1
         self.step_lap_counter = 0
         self.step_lap_distance = 0
         self.step_lap_vector = None
         self.is_open = True
         self.is_front = True
+        if var_dict:
+            self.loadFromDict(var_dict)
+            
+    def loadFromDict(self, var):
+        self.pos = var['pos']
+        self.step_lap_count = var['step_lap_count']
+        self.step_lap_distance = var['step_lap_distance']
+        self.step_lap_vector = var['step_lap_vector']
+        self.step_lap_counter = var['step_lap_counter']
+        self.is_open = var['is_open']
+        self.is_front = var['is_front']
         
     def incrementStepLapCounter(self):
         if self.is_open:
@@ -97,15 +110,26 @@ class Spear():
                 
 class Hole():
     
-    def __init__(self, name='h'):
-        self.name = name
+    def __init__(self, var_dict=None):
+        self.name = 'h'
         self.pos = 0
+        if var_dict:
+            self.loadFromDict(var_dict)
+            
+    def loadFromDict(self, var):
+        self.pos = var['pos']
         
 class Vnotch():
     
-    def __init__(self, name='v'):
-        self.name = name
+    def __init__(self, var_dict=None):
+        self.name = 'v'
         self.pos = 0
+        
+        if var_dict:
+            self.loadFromDict(var_dict)
+            
+    def loadFromDict(self, var):
+        self.pos = var['pos']
         
         
 class JobProfile():
@@ -130,25 +154,54 @@ class JobProfile():
     # getToolList is equivalent to the cut program
     def getToolList(self):
         tool_list = []
-        while True:
-            cmd = input('Add tool? : ').lower()
-            if cmd in ['y', 'a']:
-                name = input('Enter tool name : ').lower()
-                if name in ['spear', 's']:
-                    tool_list.append(Spear())
-                    tool_list[-1].getIsFront()
-                    if tool_list[-1].getStepLapCount():
-                        tool_list[-1].getStepLapDistance()
-                        tool_list[-1].getIsOpen()
-                        tool_list[-1].generateStepLapVector()
-                elif name in ['hole','h']:
-                    tool_list.append(Hole())
-                elif name in ['vnotch', 'v']:
-                    tool_list.append(Vnotch())
-                    
+        end_counter = 0
+        while end_counter < 2:
+            #cmd = input('Add tool? : ').lower()
+            #if cmd in ['y', 'a']:
+            name = input('Enter tool name : ').lower()
+            if name in ['spear', 's']:
+                end_counter += 1
+                tool_list.append(Spear())
+                if end_counter == 1:
+                    tool_list[-1].is_front = True
+                else:
+                    tool_list[-1].is_front = False
+                #tool_list[-1].getIsFront()
+                if tool_list[-1].getStepLapCount():
+                    tool_list[-1].getStepLapDistance()
+                    tool_list[-1].getIsOpen()
+                    tool_list[-1].generateStepLapVector()
+            elif name in ['hole','h']:
+                tool_list.append(Hole())
+            elif name in ['vnotch', 'v']:
+                tool_list.append(Vnotch())
+                
             else:
-                self.tool_list = tool_list
-                return
+                print('Invalid tool name.')
+                
+        self.tool_list = tool_list
+        self.dumpCutProgram(tool_list)
+        
+    def dumpCutProgram(self, tl):
+        data = {}
+        folder_path = '../cut_program_input/central_limb/'
+        names = os.listdir(folder_path)
+        name = ''
+        while True:
+            name =  input('Enter file name : ')
+            if name in names:
+                con = input('File name already exists. Do you want to overwrite ? (y or n) - ')
+                if con == 'y':
+                    break
+                continue
+            break
+
+        with open(folder_path+name+'.json', 'w') as fp:
+            for i in range(len(tl)):
+                data[i] = vars(tl[i])
+            fp.write(json.dumps(data, indent=4))
+                    
+                
         
     def getLengthList(self):
         while True:
@@ -160,6 +213,7 @@ class JobProfile():
                 return
             except ValueError as err:
                 print(f'Error : {err}')
+                sys.exit()
                 
     def hasSteplap(self):
         for i in self.tool_list:
@@ -245,11 +299,21 @@ class JobProfile():
         temp.save()
             
 
-jp = JobProfile()
-jp.getToolList()
-jp.getLengthList()
-jp.getLayers()
-jp.updateLengthList()
-jp.createExecutableTools()
-jp.execute()
+def main():
+    cmd = input(' 1 - CLI.\v 2 - Json encoded file.\n Enter option number : ')
+    if cmd == '1':
+        jp = JobProfile()
+        jp.getToolList()
+        jp.getLengthList()
+        jp.getLayers()
+        jp.updateLengthList()
+        jp.createExecutableTools()
+        jp.execute()
+    elif cmd == '2':
+        jp.JobProfile()
+        
 
+
+if __name__ == '__main__':
+    main()
+    

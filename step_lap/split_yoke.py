@@ -150,10 +150,6 @@ class Fp45:
     def lengthyfy(self):
         return 0
     
-    def loadFromDict(var):
-        for i in range(len(var.keys())):
-            pass
-    
     def hasStepLap(self) -> bool:
         if self.slp_count > 1:
             return True
