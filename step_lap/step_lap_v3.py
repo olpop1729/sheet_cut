@@ -5,7 +5,7 @@ Created on Tue Mar 23 14:58:56 2021
 
 @author: omkar
 """
-import os
+import os, sys
 import pandas as pd
 import itertools
 import json
@@ -647,7 +647,7 @@ class JobProfile():
         self.tool_list = tool_list
         if tool_list[-1].name != tool_list[0].name:
             Labels.printError(Labels.incorrect_tool_input)
-            os.exit()
+            sys.exit()
         self.dumpCutProgram(tool_list)
         
     def loadCutProgram(self, name):
@@ -795,6 +795,11 @@ class JobProfile():
                 break
         start_index += 2
         end_index = start_index + len(self.length_list) - 1
+        feed = feed[:end_index]
+        operation = operation[:end_index]
+        v_axis = v_axis[:end_index]
+        tool_number = tool_number[:end_index]
+        sheet_count = sheet_count[:end_index]
         start_index = [start_index]
         end_index = [end_index]
         sec_feed = []
