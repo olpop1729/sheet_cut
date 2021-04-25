@@ -44,7 +44,7 @@ def plotYokeSplitter(pos):
 def plotSpear(is_front, pos, h=0,linestyle = None):
     y1 = np.linspace(h, 1, 5)
     y2 = np.linspace(-1, h, 5)
-    if not is_front:
+    if is_front:
         if linestyle:
             plt.plot(pos-y1+h, y1, color='cyan', linestyle=linestyle)
             plt.plot(pos+y2-h, y2, color='cyan', linewidth=linestyle)
@@ -112,11 +112,11 @@ def plotVnotch(pos,ls=0, linestyle=None):
             plt.plot(y+pos, y, color = 'cyan', linewidth=1)
             
     else:
-        plt.plot(-y+pos, y, color = 'black', linewidth=1)
-        plt.plot(y+pos, y, color = 'black', linewidth=1)
+        plt.plot(-y+pos, y, color = 'red', linewidth=1)
+        plt.plot(y+pos, y, color = 'red', linewidth=1)
     
 def plotHole(pos, ax):
-    ax.add_patch(plt.Circle((pos,0), 0.2,color='black', fill=False))
+    ax.add_patch(plt.Circle((pos,0), 0.2,color='green', fill=False))
     
 def annotate(a, b, count):
     if count > 0:
@@ -132,20 +132,20 @@ def main(path=None):
             return
             #sys.exit()
         file_index = int(file_index)
-        x = [i for i in range(100)]
-        top = [1]*100
-        bot = [-1]*100
-        mid = [0]*100
         cp = CutProgram(names[file_index-1], path)
         data = cp.data
         
         width = len(data.keys())
         fig, ax = plt.subplots(figsize=(width+3, 5))
         pos, prev = 0, 0
-        for i in range(len(data.keys())):
-            prev = pos
+        
+        keys = [str(i) for i in range(len(data.keys()))]
+        keys = keys[::-1]
+                
+        for i in range(len(keys)):
+            prev = 3*(i+1) + 2
             pos = 3*i + 2
-            curr_tool = data[str(i)]
+            curr_tool = data[keys[i]]
             if curr_tool['name'] == 'fm45':
                 if curr_tool['step_lap_count'] > 1:
                     if curr_tool['is_front'] and not curr_tool['is_rear']:
@@ -255,15 +255,20 @@ def main(path=None):
                 
             elif curr_tool['name'] == 'h':
                 plotHole(pos, ax)
-            annotate(prev, pos, i)
-                
+            annotate( pos,prev, int(keys[i]))
+        
+        top = [1]*(pos+3)
+        bot = [-1]*(pos+3)
+        mid = [0]*(pos+3)        
+        
+        x = [i for i in range(pos+3)]
         plt.plot(x, top , color = 'black')
         plt.plot( x, bot, color = 'black')
         plt.plot(x, mid , 'b-.', linewidth=1)
         
-        plt.annotate('', xy=(-1,0), xytext=(-2,0), arrowprops=dict(arrowstyle='<-'))
+        plt.annotate('', xy=(pos+5,0), xytext=(pos+3,0), arrowprops=dict(arrowstyle='->'))
         
-        plt.xlim(-3, pos+3)
+        plt.xlim(-3, pos+5)
         plt.ylim(-4,4)
         plt.axis('off')
         plt.show()
@@ -279,20 +284,20 @@ def main2(path):
             return
             #sys.exit()
         file_index = int(file_index)
-        x = [i for i in range(100)]
-        top = [1]*100
-        bot = [-1]*100
-        mid = [0]*100
         cp = CutProgram(names[file_index-1], path)
         data = cp.data
         
         width = len(data.keys())
         fig, ax = plt.subplots(figsize=(width+3, 5))
         pos, prev, front_c = 0, 0, 0
-        for i in range(len(data.keys())):
-            prev = pos
+        
+        keys = [str(i) for i in range(len(data.keys()))]
+        keys = keys[::-1]
+        
+        for i in range(len(keys)):
+            prev = 3*(i+1) + 2
             pos = 3*i + 2
-            ct = data[str(i)]
+            ct = data[keys[i]]
             if ct['name'] == 'fm45':
                 plotFm45(pos)
                 if ct['slp_count'] > 1:
@@ -357,14 +362,20 @@ def main2(path):
                 
             elif ct['name'] == 'h':
                 plotHole(pos, ax)
-            annotate(prev, pos, i)
+            annotate( pos, prev, int(keys[i]))
+            
+        top = [1]*(pos+3)
+        bot = [-1]*(pos+3)
+        mid = [0]*(pos+3)        
+        
+        x = [i for i in range(pos+3)]
         plt.plot(x, top , color = 'black')
         plt.plot( x, bot, color = 'black')
         plt.plot(x, mid , 'b-.', linewidth=1)
         
-        plt.annotate('', xy=(-1,0), xytext=(-2,0), arrowprops=dict(arrowstyle='<-'))
+        plt.annotate('', xy=(pos+5,0), xytext=(pos+3,0), arrowprops=dict(arrowstyle='->'))
         
-        plt.xlim(-3, pos+3)
+        plt.xlim(-1, pos+5)
         plt.ylim(-4,4)
         plt.axis('off')
         plt.show()
@@ -389,3 +400,4 @@ if __name__ == "__main__":
             main2('../cut_program_input/split_yoke/')
         elif opt == 'q':
             break
+        
