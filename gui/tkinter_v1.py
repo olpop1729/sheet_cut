@@ -9,7 +9,22 @@ Created on Fri Apr 30 13:28:35 2021
 from tkinter import Tk, Button, Label, Entry, messagebox, StringVar
 from tkinter import ttk
 import json
+from run_screen import RunScreen
 
+class labels:
+    steplap_type_map = {'No step-lap':0, 'Horizontal (Longitudinal)':1, 
+                        'Vertical (Lateral)':2, 'Skewed (Lateral)':3}
+    attr_map = {''}
+    open_code_map = {'NA':0, 'Open':1, 'Closed':2, 'Front Open, Rear Open':3, 
+                     'Front Open, Rear Closed':4, 'Front Closed, Rear Open':5, 
+                     'Front Closed, Rear Closed':6}
+    
+    create_frame_cols  =['PNR', 'Tool name', 'Step-lap type','Step-lap count', 
+                            'Open-Close config']
+    
+    tool_name_tuple = ('fm45', 'fp45', 'f0', 'v', 'h', 's', 'y')
+    
+    
 
 class MainWindow:
     
@@ -27,8 +42,10 @@ class MainWindow:
         
         
         content['buttons'] = []
-        content['buttons'].append(Button(parent, text='Create', command=self._createScreen))
-        content['buttons'].append(Button(parent, text='Run'))
+        content['buttons'].append(Button(parent, text='Create',
+                                         command=self._createScreen))
+        content['buttons'].append(Button(parent, text='Run', 
+                                         command=self._run_screen))
         
         
         content['labels'] = []
@@ -40,6 +57,9 @@ class MainWindow:
         
         parent.mainloop()
         
+    def _run_screen(self):
+        RunScreen()
+        
     def _createScreen(self):
         CreateCutProgramScreen()
 
@@ -48,9 +68,11 @@ class CreateCutProgramScreen:
     def __init__(self):
         self._tk = Tk()
         self._content = {}
-        self._tools = ('fm45', 'fp45', 'f0', 'v', 'h', 's', 'y')
-        self._frame_cols = ['PNR', 'Tool name', 'Step-lap type','Step-lap count', 
-                            'Front Open', 'Rear Open']
+        self._tools = labels.tool_name_tuple
+        self._frame_cols = labels.create_frame_cols
+        self._index_map = {0:'name', 1:'steplap_type', 2:'steplap_count', 
+                           3:'open_code'}
+        
         self.__initScreen(self._tk)
         
     def __initScreen(self, parent):
@@ -64,7 +86,7 @@ class CreateCutProgramScreen:
         
         
         content['button_addrow'] = Button(parent, text='Add row', command=self._addRow)
-        content['button_addrow'].pack(side='right')
+        content['button_addrow'].pack(side='left')
         
         content['button_del_last'] = Button(parent, text='Delete last', 
                                             command=self._deleteLast)
@@ -97,18 +119,17 @@ class CreateCutProgramScreen:
                     e['values'] = ('fm45', 'fp45', 'f0', 'h', 'v', 
                                    's', 'ys')
                     e.grid(row = i+1, column=j)
-                    e.current(0)
                     e.state(['readonly'])
-                elif j == len(self._frame_cols) - 1 or j == len(self._frame_cols) - 2:
+                elif j == len(self._frame_cols) - 1:
                     values = StringVar()
                     e = ttk.Combobox(content['frame_table'], textvariable=values)
-                    e['values'] = ('Yes', 'No')
+                    e['values'] = tuple(i for i in labels.open_code_map.keys())
                     e.grid(row=i+1, column=j)
-                    e.current(1)
+                    e.current(0)
                     e.state(['readonly'])
                 elif j == 2:
                     e = ttk.Combobox(content['frame_table'], textvariable=StringVar())
-                    e['values'] = ('No step-lap','Horizontal (Longitudinal)',  'Vertical (Lateral)')
+                    e['values'] = tuple(i for i in labels.steplap_type_map.keys())
                     e.grid(row=i+1, column=j)
                     e.current(0)
                     e.state(['readonly'])
@@ -129,12 +150,38 @@ class CreateCutProgramScreen:
             messagebox.showwarning("showwarning", "File name is required.")
             return
         rows = self.content['entries']
+        tools = []
         for row in rows:
+            tool = []
             for i in range(len(row)):
                 if not row[1].get():
                     messagebox.showwarning("showwarning", "Please remove empty rows.")
                     return
-                print(row[i].get())
+                tool.append(row[i].get())
+            tools.append(tool)
+            
+        self._process_input(tools)
+        
+    def _process_input(self, tools):
+        data = {}
+        for i in range(len(tools)):
+            datum = {}
+            datum[self._index_map[0]] = tools[i][1]
+            datum[self._index_map[1]] = labels.steplap_type_map[tools[i][2]]
+            datum[self._index_map[2]] = int(tools[i][3])
+            datum[self._index_map[3]] = labels.open_code_map[tools[i][4]]
+            # for j in range(1,len(self._frame_cols)):
+            #     datum[self._index_map[j-1]] = tools[i][j]
+            data[i] = datum
+        
+        self._clump_data(data)
+        
+        with open('trial.json', 'w') as fp:
+            fp.write(json.dumps(data, indent=4))
+        print('write successfull')
+        
+    def _clump_data(self, data):
+        pass
         
     def _addRow(self):
         last_row = len(self.content['entries'])+1
@@ -146,18 +193,17 @@ class CreateCutProgramScreen:
                 e['values'] = ('fm45', 'fp45', 'f0', 'h', 'v', 
                                's', 'ys')
                 e.grid(row = last_row, column=i)
-                e.current(0)
-                e.state(['readonly'])
-            elif i == len(self._frame_cols) - 1 or i == len(self._frame_cols) - 2:
+
+            elif i == len(self._frame_cols) - 1:
                 values = StringVar()
                 e = ttk.Combobox(self.content['frame_table'], textvariable=values)
-                e['values'] = ('Yes', 'No')
+                e['values'] = tuple(i for i in labels.open_code_map.keys())
                 e.grid(row=last_row, column=i)
-                e.current(1)
+                e.current(0)
                 e.state(['readonly'])
             elif i == 2:
                 e = ttk.Combobox(self.content['frame_table'], textvariable=StringVar())
-                e['values'] = ('No step-lap','Horizontal (Longitudinal)',  'Vertical (Lateral)')
+                e['values'] = tuple(i for i in labels.steplap_type_map.keys())
                 e.grid(row=last_row, column=i)
                 e.current(0)
                 e.state(['readonly'])
