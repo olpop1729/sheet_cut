@@ -356,6 +356,12 @@ def main2(path):
                             plotSpear(False, pos)
                             plotSpear(False, pos - 0.2, linestyle='dotted')
                             plotSpear(False, pos - 0.4, linestyle='dotted')
+                else:
+                    if ct['is_front']:
+                        plotSpear(True, pos)
+                    else:
+                        plotSpear(False, pos)
+                    
                             
             elif ct['name'] == 'ys':
                 plotYokeSplitter(pos)
