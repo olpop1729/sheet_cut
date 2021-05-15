@@ -11,6 +11,9 @@ import os, sys
 import json
 
 class Config:
+    OFFSET_F0 = 0
+    OFFSET_FM45 = 0
+    OFFSET_FP45 = 0
     DISTANCE_HOLE_VNOTCH = 1250
     DISTANCE_SHEAR_VNOTCH = 4335
     COIL_LENGTH = 4000000
@@ -31,9 +34,9 @@ class Config:
                      }
     TOOL_DISTANCE_MAP = {'h':DISTANCE_HOLE_VNOTCH + COIL_START_POSITION,
                          'v':COIL_START_POSITION,
-                         'fm45':DISTANCE_SHEAR_VNOTCH + COIL_START_POSITION,
-                         'fp45':DISTANCE_SHEAR_VNOTCH + COIL_START_POSITION,
-                         'f0': DISTANCE_SHEAR_VNOTCH + COIL_START_POSITION
+                         'fm45':DISTANCE_SHEAR_VNOTCH + COIL_START_POSITION + OFFSET_FM45,
+                         'fp45':DISTANCE_SHEAR_VNOTCH + COIL_START_POSITION + OFFSET_FP45,
+                         'f0': DISTANCE_SHEAR_VNOTCH + COIL_START_POSITION + OFFSET_F0
                          }
 
 
@@ -280,15 +283,12 @@ class JobProfile():
             tool = self.tool_list[i % modulo]
             
             if isinstance(tool, Spear):
-                inner.append(['fp45', position + Config.DISTANCE_SHEAR_VNOTCH
-                              + Config.COIL_START_POSITION])
-                inner.append(['fm45', position + Config.DISTANCE_SHEAR_VNOTCH + 
-                             Config.COIL_START_POSITION])
+                inner.append(['fp45', position + Config.TOOL_DISTANCE_MAP['fp45']])
+                inner.append(['fm45', position + Config.TOOL_DISTANCE_MAP['fm45']])
                 inner.append(['v',position + Config.COIL_START_POSITION])
                 
             elif isinstance(tool, Hole):
-                inner.append(['h', position + Config.DISTANCE_HOLE_VNOTCH
-                              + Config.COIL_START_POSITION])
+                inner.append(['h', position + Config.TOOL_DISTANCE_MAP['h']])
                 
             elif isinstance(tool, Vnotch):
                 inner.append(['v', position + Config.COIL_START_POSITION])

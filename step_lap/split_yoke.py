@@ -9,6 +9,11 @@ import os, sys
 import pandas as pd
 import json
 
+class offset:
+    fp45 = 0
+    fm45 = 0
+    f0 = 0
+
 class YokeSplitter:
     
     def __init__(self, var_dict=None):
@@ -387,10 +392,10 @@ class JobProfile:
             if i[0] == 'h':
                 exe.append([i[0], pos + 1250])
             elif i[0] == 'ys':
-                exe.append(['fp45', pos + 4335])
+                exe.append(['fp45', pos + 4335 + offset.fp45])
                 exe.append(['v', pos])
             elif i[0][0] == 'f':
-                exe.append([i[0], pos + 4335])
+                exe.append([i[0], pos + 4335 + offset.fm45])
                 
             pos += i[1]
         self.pl = pos

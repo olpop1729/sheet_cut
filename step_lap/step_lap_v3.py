@@ -30,6 +30,9 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 class Config:
+    OFFSET_F0 = 0
+    OFFSET_FP45 = 0
+    OFFSET_FM45 = 0
     DISTANCE_HOLE_VNOTCH = 1250
     DISTANCE_SHEAR_VNOTCH = 4335
     COIL_LENGTH = 400000
@@ -54,9 +57,9 @@ class Config:
                      }
     TOOL_DISTANCE_MAP = {'h':DISTANCE_HOLE_VNOTCH + COIL_START_POSITION,
                          'v':COIL_START_POSITION,
-                         'fm45':DISTANCE_SHEAR_VNOTCH + COIL_START_POSITION,
-                         'fp45':DISTANCE_SHEAR_VNOTCH + COIL_START_POSITION,
-                         'f0': DISTANCE_SHEAR_VNOTCH + COIL_START_POSITION
+                         'fm45':DISTANCE_SHEAR_VNOTCH + COIL_START_POSITION + OFFSET_FM45,
+                         'fp45':DISTANCE_SHEAR_VNOTCH + COIL_START_POSITION + OFFSET_FP45,
+                         'f0': DISTANCE_SHEAR_VNOTCH + COIL_START_POSITION + OFFSET_F0
                          }
     
     def findName(name) -> str:

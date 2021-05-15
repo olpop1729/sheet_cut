@@ -21,7 +21,11 @@ class PandasModule():
         if name in onlyfiles:
             return False
         return True
-            
+          
+class offset:
+    fp45 = 0
+    fm45 = 0
+    f0 = 0
     
 class JobProfile():
     def __init__(self):
@@ -88,8 +92,10 @@ class JobProfile():
         
     def execute(self):
         for i in self.exe:
-            if i[0][0] == 'f':
-                i[1] += 4335
+            if i[0] == 'fp45':
+                i[1] += 4335 + offset.fp45
+            elif i[0] == 'fm45':
+                i[1] += 4335 + offset.fm45
             elif i[0] == 'h':
                 i[1] += 1250
         terminate = 500
@@ -122,14 +128,21 @@ class JobProfile():
         temp = pd.ExcelWriter('../cut_program_output/FishyFish_0.xlsx')
         df.to_excel(temp)
         temp.save()
+ 
         
-jp = JobProfile()
-jp.getStepLapInfo()
-jp.getLengthList()
-jp.getLayers()
-jp.createDict()
-for i in sorted(jp.exe, key = lambda x: x[1]):
-    if i[0] == 'h':
-        continue
-    print(i[0], '--', i[1])
-jp.execute()
+def main():
+    jp = JobProfile()
+    jp.getStepLapInfo()
+    jp.getLengthList()
+    jp.getLayers()
+    jp.createDict()
+    for i in sorted(jp.exe, key = lambda x: x[1]):
+        if i[0] == 'h':
+            continue
+        print(i[0], '--', i[1])
+    jp.execute()
+    
+
+
+if __name__ == "__main__":
+    main()
