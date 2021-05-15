@@ -182,6 +182,32 @@ class JobProfile():
         self.tool_list = tool_list
         self.dumpCutProgram(tool_list)
         
+    def showCutProgram(self, name):
+        return
+        
+    def loadCutProgram(self):
+        names = [i for i in os.listdir('../cut_program_input/central_limb') if i.endswith('.json')]
+        for i in range(len(names)):
+            print(f'{i+1} - {names[i]}')
+            
+        index = int(input('Enter index : '))
+        self.showCutProgram(names[index-1])
+        name = names[index-1]
+        with open('../cut_program_input/central_limb/' + name, 'r') as fp:
+            data = json.load(fp)
+        tool_list = []
+        for i in data:
+            #print(i ,'--' , data[i])
+            if data[i]['name'] == 'h':
+                tool_list.append(Hole(data[i]))
+            elif data[i]['name'] == 's':
+                tool_list.append(Spear(data[i]))
+            elif data[i]['name'] == 'v':
+                tool_list.append(Vnotch(data[i]))
+                                
+        self.tool_list = tool_list
+        
+        
     def dumpCutProgram(self, tl):
         data = {}
         folder_path = '../cut_program_input/central_limb/'
@@ -254,10 +280,10 @@ class JobProfile():
             tool = self.tool_list[i % modulo]
             
             if isinstance(tool, Spear):
-                inner.append(['fp45', position + Config.DISTANCE_SHEAR_VNOTCH + 
+                inner.append(['fp45', position + Config.DISTANCE_SHEAR_VNOTCH
                               + Config.COIL_START_POSITION])
-                inner.append(['fm45', position + Config.DISTANCE_SHEAR_VNOTCH] + 
-                             Config.COIL_START_POSITION)
+                inner.append(['fm45', position + Config.DISTANCE_SHEAR_VNOTCH + 
+                             Config.COIL_START_POSITION])
                 inner.append(['v',position + Config.COIL_START_POSITION])
                 
             elif isinstance(tool, Hole):
@@ -310,7 +336,13 @@ def main():
         jp.createExecutableTools()
         jp.execute()
     elif cmd == '2':
-        jp.JobProfile()
+        jp = JobProfile()
+        jp.loadCutProgram()
+        jp.getLengthList()
+        jp.getLayers()
+        jp.updateLengthList()
+        jp.createExecutableTools()
+        jp.execute()
         
 
 
