@@ -279,12 +279,15 @@ class JobProfile():
         inner = []
         position = 0
         modulo = len(self.tool_list) - 1
+        # change offset here, below (x)
+        x = 10
         for i in range(len(self.length_list)):
             tool = self.tool_list[i % modulo]
             
             if isinstance(tool, Spear):
-                inner.append(['fp45', position + Config.TOOL_DISTANCE_MAP['fp45']])
-                inner.append(['fm45', position + Config.TOOL_DISTANCE_MAP['fm45']])
+                
+                inner.append(['fp45', position + Config.TOOL_DISTANCE_MAP['fp45'] - x])
+                inner.append(['fm45', position + Config.TOOL_DISTANCE_MAP['fm45'] + x])
                 inner.append(['v',position + Config.COIL_START_POSITION])
                 
             elif isinstance(tool, Hole):
@@ -294,7 +297,7 @@ class JobProfile():
                 inner.append(['v', position + Config.COIL_START_POSITION])
                 
             position += self.length_list[i]
-        self.pattern_length = position
+        self.pattern_length = position + 2*x*self.step_lap*self.layers
         self.executable_tool_list = inner
         
     def execute(self):
