@@ -5,277 +5,369 @@ Created on Tue Apr  6 15:13:34 2021
 
 @author: omkar
 """
-
-#assuming compliance with compatible endings.
-import os
 import json
+import sys
+#  Tools definition section
+
+
 
 class Config:
+    OFFSET_F0 = 0
+    OFFSET_FP45 = 0
+    OFFSET_FM45 = 0
     DISTANCE_HOLE_VNOTCH = 1250
     DISTANCE_SHEAR_VNOTCH = 4335
-    COIL_LENGTH = 4000000
+    COIL_LENGTH = 400000
     CUT_PROGRAM_OUTPUT_DIRECTORY = '../cut_program_output'
     COIL_START_POSITION = 0 # w.r.t. V_Notch.
     OUTPUT_FILE_NAME = 'CutFeed_'
     LIST_NO = ['no', 'n','not', '0','negative','incorrect']
     LIST_YES = ['yes', 'y', 'affirmative', 'correct', '1']
-    SHEET_SEPERATORS = ['fish', 'fm45', 'fp45', 's', 'f0']
+    EXCEL_COLUMN_NAMES = ['Feed Dist', 'Vnotch Trav Dist', 'After Shear feed Tip Cut',
+                     'Tool', 'Tool no', 'Start Index', 'End Index',
+                     'Job Shape', 'No of Steps', 'Sheet Count', 'P45 OverCut', 
+                     'M45 OverCut', 'Yoke Len', 'Leg Len', 'Cnetral Limb Len']
     TOOL_NAME_MAP = {'h':['Hole Punch', DISTANCE_HOLE_VNOTCH,2],
                      'v':['V Notch', DISTANCE_SHEAR_VNOTCH,1],
-                     'fm45':[f'Full Cut -45{chr(176)}',4],
-                     'fp45':[f'Full Cut +45{chr(176)}',3],
-                     'f0':[f'Full Cut 0{chr(176)}',5],
-                     'pfrm45':[f'Partial Front Right -45{chr(176)}'],
-                     'pfr0':[f'Partial Front Right 0{chr(176)}'],
-                     'pflp45':[f'Partial Front Left +45{chr(176)}'],
-                     'pfl0':[f'Partial Front Left 0{chr(176)}'],
-                     'prrp45':[f'Partial Rear Right +45{chr(176)}'],
-                     'prr0':[f'Partial Rear Right 0{chr(176)}'],
-                     'prlm45':[f'Partial Rear Left -45{chr(176)}'],
-                     'prl0':[f'Partial Rear Left 0{chr(176)}']
+                     'fm45':['Full Cut -45',4],
+                     'fp45':['Full Cut +45',3],
+                     'f0':['Full Cut 0',5],
+                     'pfr':['Partial Front Right'],
+                     'pfl':['Partial Front Left'],
+                     'prr':['Partial Rear Right'],
+                     'prl':['Partial Rear Left']
                      }
     TOOL_DISTANCE_MAP = {'h':DISTANCE_HOLE_VNOTCH + COIL_START_POSITION,
                          'v':COIL_START_POSITION,
-                         'fm45':DISTANCE_SHEAR_VNOTCH + COIL_START_POSITION,
-                         'fp45':DISTANCE_SHEAR_VNOTCH + COIL_START_POSITION,
-                         'f0': DISTANCE_SHEAR_VNOTCH + COIL_START_POSITION
+                         'fm45':DISTANCE_SHEAR_VNOTCH + COIL_START_POSITION + OFFSET_FM45,
+                         'fp45':DISTANCE_SHEAR_VNOTCH + COIL_START_POSITION + OFFSET_FP45,
+                         'f0': DISTANCE_SHEAR_VNOTCH + COIL_START_POSITION + OFFSET_F0
                          }
-
-class Names:
-    HOLE = 'h'
-    V_NOTCH = 'v'
-    FP45 = 'fp45'
-    FM45 = 'fm45'
-    F0 = 'f0'
-    FISH = 'fish'
-    SPEAR = 's'
     
-class Labels:
-    get_h_step_lap_count = 'Enter horizontal step-lap count : '
-    
-    negative_step_count = 'Step count cannot be negative or zero.'
-    
-class FileHandler():
-    
-    def __init__(self):
-         self.names = os.listdir()
-         
-    def availableName(self, name):
-        if name in self.names:
-            return True
-        return False
-    
-    def write(self, data):
-        with open('name', 'r+') as file_object:
-            file_object.write(json.dumps(data))
-        return
-
-#-----------------------------------------------------------------------------
-#-----------------------------------------------------------------------------
-#-----------------------------------------------------------------------------
-#-----------------------------------------------------------------------------
-
-#common attributes for the different operations
-class Tool():
-    
-    def __init__(self):
-        self.relative_position = 0
-        self.h_step_lap_count = 1
-        self.h_step_lap_distance = 0
-        self.h_step_lap_counter = 0
-        self.h_step_lap_vector = []
-        self.end_marker = False
-        
-    def getHorizontalStepLapCount(self):
+    def findName(name) -> str:
         while True:
-            try:
-                count = int(input(Labels.get_h_step_lap_count))
-                if count <=0 :
-                    print(Labels.negative_step_count)
-                    continue
-                self.h_step_lap_count = count
-                return
-            except ValueError as err:
-                print(err)
-                
-    def getHorizontalStepLapDistance(self):
-        while True:
-            try:
-                distance = float(input('Enter step-lap distance : '))
-                self.h_step_lap_distance = distance
-                return
-            except ValueError as err:
-                print(err)
-                
-    def generateHorizontalStepLapVector(self):
+            break
         pass
 
-#-----------------------------------------------------------------------------
 
-class Hole(Tool):
-    def __init__(self):
-        pass
+#user input tool list
+class ToolList:
     
-    def lengthyfy(self, pos=0) -> list:
-        pass
-
-#-----------------------------------------------------------------------------
-
-class VNotch(Tool):
-    def __init__(self):
-        self.v_step_lap_count = 1
-        self.v_step_lap_distance = 0
-        self.v_step_lap_vector = []
-        self.v_step_lap_counter = 0
-        
-    def lengthyfy(self, pos=0) -> list:
-        pass
-        
-    def getVerticalStepLapCount(self):
-        while True:
-            count = input('Enter vertical step-lap count : ')
-            try:
-                count = int(count)
-                self.v_step_lap_count = count
-                return
-            except ValueError as err:
-                print(err)
-                
-    def getVerticalStepLapDistance(self):
-        while True:
-            dist = input('Enter vertical step-lap distance : ')
-            try:
-                dist = float(dist)
-                self.v_step_lap_distance = dist
-                return
-            except ValueError as err:
-                print(err)
-                
-    def generateVerticalStepLapVector(self):
-        self.v_step_lap_vector = [i * self.v_step_lap_distance for i in 
-                                  range(self.v_step_lap_count//2 ,
-                                      -self.v_step_lap_count//2, -1)]
-    
-#-----------------------------------------------------------------------------
-
-class Fm45(Tool):
-    
-    def __init__(self):
-        pass
-    
-    def lengthyfy(self, pos=0) -> list:
-        pass
-
-#-----------------------------------------------------------------------------
-
-class Fp45(Tool):
-    
-    def __init__(self):
-        pass
-    
-    def lengthyfy(self, pos=0) -> list:
-        pass
-
-#-----------------------------------------------------------------------------
-
-class Spear(Tool):
-    def __init__(self):
-        self.v_step_lap_count = 1
-        self.v_step_lap_distance = 0
-        self.v_step_lap_vector = []
-        self.v_step_lap_counter = 0
-        self.distance_from_eq = 0
-        self.major_cut = []
-        #self.distance_from_edge = 0
-        
-    def lengthyfy(self, pos=0) -> list:
-        pass
-        
-    def setMajorCut(self):
-        if self.distance_from_eq > 0:
-            self.major_cut = [-45]
-        elif self.distance_from_eq < 0:
-            self.major_cut = [45]
-        else:
-            self.major_cut = [-45, 45]
+    def __init__(self, **kwargs):
+        #initialze tool with json file
+        if 'from_json' in kwargs:
+            data = self._fromJson(kwargs['from_json'])
+            self._populate_data(data)
             
-    def getVerticalStepLapDistance(self):
-        self.v_step_lap_distance = float(input('Enter step-lap distance : '))
+        #initalize tool from a db like object
+        elif 'from_db' in kwargs:
+            print('Yet to be implemented.')
         
-    def generateVerticalStepLapVector(self):
-        vector = [i * self.v_step_lap_distance for i in 
-                                  range(self.v_step_lap_count//2 ,
-                                      -self.v_step_lap_count//2, -1)]
-        self.v_step_lap_vector = [i + self.distance_from_eq for i in vector]
-        
-        
-    def getVerticalStepLapCount(self):
-        while True:
-            try :
-                count = int(input('Enter vertical step-lap count : '))
-                self.v_step_lap_count = count
-                return
-            except ValueError as err:
-                print(err)
-                
-    def getDistanceFromEq(self):
-        self.distance_from_eq = float(input('Enter distance from EQ : '))
-        self.setMajorCut()
-    
-    
-#-----------------------------------------------------------------------------
-#-----------------------------------------------------------------------------
-#-----------------------------------------------------------------------------
-#-----------------------------------------------------------------------------
-
-class ExecutableTool():
-    def __init__(self,curr_pos = 0,lo_d=0, la_d=0, pl=0, name=None):
-        self.current_position = curr_pos
-        self.longitudinal_distance = lo_d
-        self.lateral_distance = la_d
-        self.repeat_distance = pl
-        self.name = name
-        
-    def resetDistance(self):
-        self.current_position = self.repeat_distance
-        
-    def feed(self, feed_distance):
-        self.current_position -= feed_distance
-        
-#-----------------------------------------------------------------------------
-#-----------------------------------------------------------------------------
-#-----------------------------------------------------------------------------
-#-----------------------------------------------------------------------------
-     
-class JobProfile():
-    def __init__(self):
-        self.coil_width = 0
-        self.raw_tool_list = []
-        
-    def checkCompatible(self):
-        pass
-        
-    def getRawToolList(self):
-        while True:
-            cmd = input('Add tool ? : ')
-            if cmd in ['y', 'a']:
-                name = input('Enter tool name : ')
-                if name == 's':
-                    tool = Spear()
-                    tool.getDistanceFromEq()
-                    tool.getHorizontalStepLapCount()
-                    if tool.h_step_lap_count > 1:
-                        tool.getHorizontalStepLapDistance()
-                        tool.generateHorizontalStepLapVector()
-                    else:
-                        tool.getVerticalStepLapCount()
-                        if tool.v_step_lap_count > 1:
-                            tool.getVerticalStepLapDistance()
-                            tool.generateVerticalStepLapVector()
-                elif name == 'h':
-                    tool = Hole()
-                else:
-                    print('Incorrect name.')
-                    
+        #If none of the above, initialize an empty object.
+        else:
+            #show error message here after wards
+            if 'data' in kwargs:
+                try:
+                    self._steplap_distances = kwargs['d_list']
+                    self._length_list = kwargs['l_list']
+                    self._populate_data(kwargs['data'])
+                    print('Data recieved successfully.')
+                except KeyError as err:
+                    print('Incorrect arguments passed.')
+                    print(err)
             else:
-                break
+                print('Uh oh, no data passed.')
+            
+            self._ready_steplaps()
+            pass
+        
+    def _ready_steplaps(self):
+        self._stepcount = max([i.steplap_count for i in self._tool_list])
+        if not self._stepcount:
+            self._stepcount = 1
+        for i in self._tool_list:
+            
+            i._generate_steplap_vector()
+            i._set_steplap_counter()
+            
+        for i in self._tool_list:
+            i.show()
+            
+        self._lengthyfy()
+            
+            
+    
+    #read from json and assgin to attributes
+    def _populate_data(self, data):
+        #first validate the data
+        self._validate_data(data)
+        
+        if not data:
+            print('Data input error')
+            sys.exit()
+        tl = [] # the loaded tool list
+        for i in data:
+            tl.append(Tool(data[i]))
+         
+        d_counter = 0
+        for i in tl:
+            if i.steplap_count > 1:
+                i._steplap_distance = self._steplap_distances[d_counter]
+                d_counter += 1
+        self._tool_list = tl
+        
+
+            
+    #method for validating the data
+    def _validate_data(self,data):
+        #check if the sequencing of the cut is proper i.e. according to the 
+        #given justified pattern
+        return
+            
+    
+    
+    #get the data dictionary from the json file
+    def _fromJson(self, name):
+        data = {}
+        path = '../cut_program_input/' + name
+        try:
+            with open(path, 'r') as fp:
+                data = json.load(fp)
+            return data
+        except FileNotFoundError as err:
+            print(err)
+            return None
+        raise(Exception)
+        
+    #export the data to json if necessary (for logging)
+    def _toJson(self, data):
+        try:
+            with open('output.json', 'w') as fp:
+                fp.write(json.dumps(data, indent=4))
+            return None
+        except IOError as err:
+            print(err)
+            return
+        raise(Exception)
+        
+        
+    #returns an ExecutableTool object which is execution ready
+    def _lengthyfy(self):
+        #there must be a better way to this find it.
+        nl = []
+        #nl is the list of tuple corresponding to the respective steplap types
+        #their values
+        
+        l = self._length_list
+        t = self._tool_list
+        for j in range(self._stepcount):
+            for i in range(len(l)):
+                temp = t[i]
+                if temp.steplap_type  == 0:
+                    nl.append([l[i],0])
+                elif temp.steplap_type == 1:
+                    if temp.name == 'h':
+                        #remember to throw an error if open code = 0 here!!!!
+                        
+                        #if temp.open_code in [1, 2, 7, 8]:
+                        if  temp.open_code in [1, 2]:
+                            nl[-1][0] += temp.steplap_vector[temp.rear_counter]
+                            nl.append([l[i] + temp.steplap_vector[temp.front_counter], 0])
+                            temp._increment_steplap_counter()
+                        elif temp.open_code in [3, 4, 5, 6]:
+                            pass
+                        #not need for hole cut
+                        # elif temp.open_code in [3, 4, 5, 6]:
+                        #     nl[-1][0] += temp.steplap_vector[temp.rear_counter]
+                        #     nl.append([l[i] + temp.steplap_vector[temp.front_counter], 0])
+                        #     temp._increment_steplap_counter()
+                            
+                        # elif temp.open_code in [9, 10]:
+                        #     nl[-1][0] += temp.steplap_vector[temp.rear_counter]
+                        #     temp._increment_steplap_counter()
+                            
+                            
+                    elif temp.name == 'v':
+                        #remember to throw an error if open code = 0 here!!!!
+                        
+                        if  temp.open_code in [1, 2]:
+                            nl[-1][0] += temp.steplap_vector[temp.rear_counter]
+                            nl.append([l[i] + temp.steplap_vector[temp.front_counter], 0])
+                            temp._increment_steplap_counter()
+                        elif temp.open_code in [3, 4, 5, 6]:
+                            pass
+                        
+                        # if temp.open_code in [1, 2, 7, 8]:
+                        #     nl.append([l[i] + temp.steplap_vector[temp.front_counter], 0])
+                        #     temp._increment_steplap_counter()
+                            
+                        # elif temp.open_code in [3, 4, 5, 6]:
+                        #     nl[-1][0] += temp.steplap_vector[temp.rear_counter]
+                        #     nl.append([l[i] + temp.steplap_vector[temp.front_counter], 0])
+                        #     temp._increment_steplap_counter()
+                            
+                        # elif temp.open_code in [9, 10]:
+                        #     nl[-1][0] += temp.steplap_vector[temp.rear_counter]
+                        #     temp._increment_steplap_counter()
+                            
+                            
+                    elif temp.name in ['fm45', 'fp45', 'f0']:
+                        #remember to throw an error if open code = 0 here!!!!
+                        
+                        if temp.open_code in [1, 2, 7, 8]:
+                            nl.append([l[i] + temp.steplap_vector[temp.front_counter], 0])
+                            temp._increment_steplap_counter()
+                            
+                        elif temp.open_code in [3, 4, 5, 6]:
+                            # nl[-1][0] += temp.steplap_vector[temp.rear_counter]
+                            nl.append([l[i] + temp.steplap_vector[temp.front_counter], 0])
+                            temp._increment_steplap_counter()
+                            
+                        elif temp.open_code in [9, 10]:
+                            nl[-1][0] += temp.steplap_vector[temp.rear_counter]
+                            temp._increment_steplap_counter()
+                            
+                            
+                elif temp.steplap_type == 2:
+                    if temp.name == 'v':
+                        if temp.open_code in [1, 2]:
+                            nl.append([l[i], temp.steplap_vector[temp.front_counter]])
+                            temp._increment_steplap_counter()
+
+                #is there a better way to do this last outlier?
+                #outliers are necessary for the bound cases
+                if i == len(l) - 1:
+                    temp = t[i+1]
+                    if temp.steplap_type == 0:
+                        continue
+                    elif temp.steplap_type == 1:
+                        if temp.name in ['fm45', 'fp45', 'f0']:
+                                
+                            if temp.open_code in [1, 2]:
+                                nl[-1][0] += temp.steplap_vector[temp.front_counter]
+                                temp._increment_steplap_counter()
+                    elif temp.steplap_type == 2:
+                        #this case should not happening in any of the current scenarios
+                        #that are currently being looked upon
+                        pass
+                    
+                    
+                    
+                        
+        self._nl = nl
+        #send the following to the execution unit.
+        #print(nl)
+        self.createExecutable()
+        
+    def createExecutable(self):
+        inner = []
+        pos = 0
+        dtt = 0
+        modulo = len(self._tool_list) - 1
+        
+        for i in range(len(self._nl)):
+            dtt = pos + Config.TOOL_DISTANCE_MAP[self._tool_list[i % modulo].name]
+            inner.append([self._tool_list[i % modulo].name, dtt, self._nl[i][1]])
+            pos += self._nl[i][0]
+        self._pl = pos
+        self._exe_tl = inner
+        print(inner)
+
+    
+class Tool:
+    
+    def __init__(self, data):
+        
+        self.long_pos = 0
+        self.lat_pos = 0
+        
+        if data:
+        
+            self.name = data['name']
+            self.steplap_count = data['steplap_count']
+            self._steplap_distance = data['_steplap_distance']
+            self.steplap_type = data['steplap_type']
+            self.open_code = data['open_code']
+            
+        else:
+            print('Input data empty. Please add read data from the json file only.')
+            
+    def _set_slp_distance(self, dist):
+        if dist:
+            self._steplap_distance = dist
+        else:
+            self._steplap_distance = 0
+        
+            
+    def _generate_steplap_vector(self):
+        d = self._steplap_distance
+        n = self.steplap_count
+        #vector for even step count
+        if n > 1:
+            if n % 2 == 0:
+                self.steplap_vector = [i*d for i in range(-n//2 + 1, n//2 + 1) if i != 0]
+            #vector for odd step count
+            else:
+                self.steplap_vector = [i*d for i in range(-n//2 + 1, n//2 + 1) ]
+            
+    
+    
+    def _set_steplap_counter(self):
+        #1 is treated the same 3. The diffenrece lies in the implementaion
+        #of the lengthyfy for the different tools
+        #open starts with the highest value in the vector
+        if self.open_code in [4, 1, 7, 10]:
+            self.front_counter = 0
+            self.rear_counter = self.steplap_count - 1
+        #same story as above
+        #closed starts with the sammlest value in the vector
+        elif self.open_code in [2, 5, 8, 9]:
+            self.front_counter = self.steplap_count - 1
+            self.rear_counter = 0
+        elif self.open_code == 3:
+            self.front_counter = 0
+            self.rear_counter = 0
+        elif self.open_code == 6:
+            self.front_counter == self.steplap_count - 1
+            self.rear_counter == self.steplap_count - 1
+            
+    
+    #steping to next steplap distance
+    def _increment_steplap_counter(self):
+        #variable names for simplicity
+        f = self.front_counter
+        r = self.rear_counter
+        n = self.steplap_count
+        
+        #open increment implies moving forward in the vector
+        if self.open_code == 1 or self.open_code == 4:
+            f = ( f + 1 ) % n
+            r = ( r - 1 ) % n
+        #closed increment imples moving backward in the vector
+        elif self.open_code == 2 or self.open_code == 5:
+            f = ( f - 1 ) % n
+            r = ( r + 1 ) % n
+        elif self.open_code == 3:
+            f = ( f + 1 ) % n
+            r = ( r + 1 ) % n
+        elif self.open_code == 6:
+            f = ( f - 1 ) % n
+            r = ( r - 1 ) % n
+        self.front_counter = f
+        self.rear_counter = r
+    #update indices after increment
+           
+        
+    def show(self):
+        print(vars(self))
+        
+    def _step(self):
+        #return (long_pos f, laong_pos r, lat_pos)
+        pass
+    
+                
+if __name__ == '__main__':
+    tl = ToolList(from_json = 'trial.json')
+    
+        
+    
