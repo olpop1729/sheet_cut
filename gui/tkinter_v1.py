@@ -17,7 +17,8 @@ class labels:
     attr_map = {''}
     open_code_map = {'NA':0, 'Open':1, 'Closed':2, 'Front Open, Rear Open':3, 
                      'Front Open, Rear Closed':4, 'Front Closed, Rear Open':5, 
-                     'Front Closed, Rear Closed':6}
+                     'Front Closed, Rear Closed':6, 'Front Open':7, 'Front Closed':8, 
+                     'Rear Open':9, 'Rear Closed':10}
     
     create_frame_cols  =['PNR', 'Tool name', 'Step-lap type','Step-lap count', 
                             'Open-Close config']
@@ -71,7 +72,7 @@ class CreateCutProgramScreen:
         self._tools = labels.tool_name_tuple
         self._frame_cols = labels.create_frame_cols
         self._index_map = {0:'name', 1:'steplap_type', 2:'steplap_count', 
-                           3:'open_code'}
+                           3:'open_code', 4:'_steplap_distance'}
         
         self.__initScreen(self._tk)
         
@@ -89,7 +90,7 @@ class CreateCutProgramScreen:
         content['button_addrow'].pack(side='left')
         
         content['button_del_last'] = Button(parent, text='Delete last', 
-                                            command=self._deleteLast)
+                                            command=self._delete_last)
         content['button_del_last'].pack(side='left')
         
         content['save_frame'] = ttk.Frame(parent)
@@ -117,22 +118,19 @@ class CreateCutProgramScreen:
                     values = StringVar()
                     e = ttk.Combobox(content['frame_table'], textvariable = values)
                     e['values'] = ('fm45', 'fp45', 'f0', 'h', 'v', 
-                                   's', 'ys')
+                                   's', 'ys', 'prr')
                     e.grid(row = i+1, column=j)
-                    e.state(['readonly'])
                 elif j == len(self._frame_cols) - 1:
                     values = StringVar()
                     e = ttk.Combobox(content['frame_table'], textvariable=values)
                     e['values'] = tuple(i for i in labels.open_code_map.keys())
                     e.grid(row=i+1, column=j)
                     e.current(0)
-                    e.state(['readonly'])
                 elif j == 2:
                     e = ttk.Combobox(content['frame_table'], textvariable=StringVar())
                     e['values'] = tuple(i for i in labels.steplap_type_map.keys())
                     e.grid(row=i+1, column=j)
                     e.current(0)
-                    e.state(['readonly'])
                 else:
                     e = Entry(content['frame_table'])
                     e.grid(row = i+1, column = j)
@@ -160,27 +158,40 @@ class CreateCutProgramScreen:
                 tool.append(row[i].get())
             tools.append(tool)
             
-        self._process_input(tools)
+        self._process_input(tools, file_name)
         
-    def _process_input(self, tools):
+    def _process_input(self, tools, fn):
         data = {}
         for i in range(len(tools)):
             datum = {}
             datum[self._index_map[0]] = tools[i][1]
             datum[self._index_map[1]] = labels.steplap_type_map[tools[i][2]]
-            datum[self._index_map[2]] = int(tools[i][3])
+            if not tools[i][3]:
+                datum[self._index_map[2]] = 1
+            else:
+                datum[self._index_map[2]] = int(tools[i][3])
             datum[self._index_map[3]] = labels.open_code_map[tools[i][4]]
-            # for j in range(1,len(self._frame_cols)):
-            #     datum[self._index_map[j-1]] = tools[i][j]
+            
+            #access to this datum entry should be hidden from the user.
+            datum[self._index_map[4]] = 0
+            
             data[i] = datum
         
         self._clump_data(data)
         
-        with open('trial.json', 'w') as fp:
+        path = '../cut_program_input/' + fn + '.json'
+        
+        with open( path , 'w') as fp:
             fp.write(json.dumps(data, indent=4))
-        print('write successfull')
+        #print('write successfull')   
         
     def _clump_data(self, data):
+        # data = self.content
+        # for i in range(10):
+        #     list_d = data[i]
+        #     for j in list_d:
+        #         if j._has_steplap():
+        #             return False
         pass
         
     def _addRow(self):
@@ -214,7 +225,7 @@ class CreateCutProgramScreen:
             row.append(e)
         self.content['entries'].append(row)
         
-    def _deleteLast(self):
+    def _delete_last(self):
         if self.content['entries']:
             for i in range(len(self._frame_cols)):
                 self.content['entries'][-1][-1-i].destroy()
@@ -222,5 +233,5 @@ class CreateCutProgramScreen:
         else:
             print('No row to delete.')
             
-        
+ 
 mw = MainWindow()
