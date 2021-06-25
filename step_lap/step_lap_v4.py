@@ -7,6 +7,9 @@ Created on Tue Apr  6 15:13:34 2021
 """
 import json
 import sys
+import pandas as pd
+import os
+import itertools
 #  Tools definition section
 
 
@@ -48,6 +51,27 @@ class Config:
         while True:
             break
         pass
+
+
+class PandasWriterReader:
+    
+    def writeExcel(fname='Trial', **kwargs):
+        if len(kwargs.keys()) < len(Config.EXCEL_COLUMN_NAMES):
+            sys.exit(0)
+        cut_feed = list(itertools.zip_longest(kwargs['feed'], kwargs['v_axis'],kwargs['sec_feed'],
+                    kwargs['operation'], kwargs['tool_number'], 
+                    kwargs['start_index'], kwargs['end_index'], 
+                    kwargs['job_shape'], kwargs['number_of_steps'], 
+                    kwargs['sheet_count'], kwargs['p45_overcut'], 
+                    kwargs['m45_overcut'], kwargs['yoke_len'],
+                    kwargs['leg_len'], kwargs['cl_len']))
+        df = pd.DataFrame(data = cut_feed, columns=Config.EXCEL_COLUMN_NAMES)
+        df.index += 1
+        temp = pd.ExcelWriter('../cut_program_output/' + fname + '.xlsx')
+        df.to_excel(temp)
+        temp.save()
+
+
 
 
 #user input tool list
@@ -258,6 +282,7 @@ class ToolList:
         #send the following to the execution unit.
         #print(nl)
         self.createExecutable()
+        self._exe()
         
     def createExecutable(self):
         inner = []
@@ -272,6 +297,72 @@ class ToolList:
         self._pl = pos
         self._exe_tl = inner
         print(inner)
+        
+    def _exe(self):
+        terminate = 0
+        operation = []
+        tool_number = []
+        feed = []
+        v_axis = []
+        repeat_flag = False
+        sheet_count = []
+        sheet_counter = -1
+        while terminate < Config.COIL_LENGTH:
+            closest_cut = min([i[1] for i in self._exe_tl])
+            for i in self._exe_tl:
+                if i[1] == closest_cut:
+                    i[1] = self._pl
+                    if repeat_flag:
+                        feed.append(0)
+                    else:
+                        feed.append(closest_cut)
+                        repeat_flag = True
+                    v_axis.append(i[2])
+                    operation.append(i[0])
+                    tool_number.append(Config.TOOL_NAME_MAP[i[0]][-1])
+                    sheet_count.append(sheet_counter)
+                    if i[0] == self._exe_tl[0][0]:
+                        sheet_counter += 1
+                else:
+                    i[1] -= closest_cut
+            repeat_flag = False
+            terminate += closest_cut
+        start_index = 0
+        end_index = 0
+        for i in range(len(operation)):
+            if operation[i][0] == 'f':
+                start_index = i
+                break
+        start_index += 2
+        end_index = start_index + len(self._nl) - 1
+        feed = feed[:end_index]
+        operation = operation[:end_index]
+        v_axis = v_axis[:end_index]
+        tool_number = tool_number[:end_index]
+        sheet_count = sheet_count[:end_index]
+        start_index = [start_index]
+        end_index = [end_index]
+        sec_feed = []
+        number_of_steps = []
+        p45_overcut = []
+        m45_overcut = []
+        yoke_len = []
+        leg_len = []
+        cl_len = []
+        job_shape = []
+        PandasWriterReader.writeExcel(feed=feed, v_axis=v_axis, 
+                                                  sec_feed=sec_feed, 
+                                                  operation=operation, 
+                                                  tool_number=tool_number, 
+                                                  start_index=start_index, 
+                                                  end_index=end_index, 
+                                                  job_shape=job_shape, 
+                                                  number_of_steps=number_of_steps, 
+                                                  sheet_count=sheet_count, 
+                                                  p45_overcut=p45_overcut,
+                                                  m45_overcut=m45_overcut, 
+                                                  yoke_len=yoke_len, 
+                                                  leg_len=leg_len, cl_len=cl_len)
 
     
 class Tool:
