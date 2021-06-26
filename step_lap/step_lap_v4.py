@@ -244,6 +244,7 @@ class ToolList:
                             
                         elif temp.open_code in [3, 4, 5, 6]:
                             # nl[-1][0] += temp.steplap_vector[temp.rear_counter]
+                            nl[-1][0] += temp.steplap_vector[temp.rear_counter]
                             nl.append([l[i] + temp.steplap_vector[temp.front_counter], 0])
                             temp._increment_steplap_counter()
                             
@@ -296,7 +297,6 @@ class ToolList:
             pos += self._nl[i][0]
         self._pl = pos
         self._exe_tl = inner
-        print(inner)
         
     def _exe(self):
         terminate = 0
@@ -393,13 +393,14 @@ class Tool:
     def _generate_steplap_vector(self):
         d = self._steplap_distance
         n = self.steplap_count
-        #vector for even step count
+        
         if n > 1:
+            #vector for even step count
             if n % 2 == 0:
-                self.steplap_vector = [i*d for i in range(-n//2 + 1, n//2 + 1) if i != 0]
+                self.steplap_vector = [i*d for i in range( n//2 , -n//2, -1) if i != 0]
             #vector for odd step count
             else:
-                self.steplap_vector = [i*d for i in range(-n//2 + 1, n//2 + 1) ]
+                self.steplap_vector = [i*d for i in range( n//2 , -n//2, -1) ]
             
     
     
