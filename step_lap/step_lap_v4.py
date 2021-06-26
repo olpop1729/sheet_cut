@@ -256,7 +256,7 @@ class ToolList:
                 elif temp.steplap_type == 2:
                     if temp.name == 'v':
                         if temp.open_code in [1, 2]:
-                            nl.append([l[i], temp.steplap_vector[temp.front_counter]])
+                            nl.append([l[i], temp.steplap_vector[temp.rear_counter]])
                             temp._increment_steplap_counter()
 
                 #is there a better way to do this last outlier?
