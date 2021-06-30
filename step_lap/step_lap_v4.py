@@ -8,8 +8,8 @@ Created on Tue Apr  6 15:13:34 2021
 import json
 import sys
 import pandas as pd
-import os
 import itertools
+from circuit import eTool
 #  Tools definition section
 
 
@@ -32,9 +32,9 @@ class Config:
                      'M45 OverCut', 'Yoke Len', 'Leg Len', 'Cnetral Limb Len']
     TOOL_NAME_MAP = {'h':['Hole Punch', DISTANCE_HOLE_VNOTCH,2],
                      'v':['V Notch', DISTANCE_SHEAR_VNOTCH,1],
-                     'fm45':['Full Cut -45',4],
-                     'fp45':['Full Cut +45',3],
-                     'f0':['Full Cut 0',5],
+                     'fm45':['Full Cut -45',5],
+                     'fp45':['Full Cut +45',4],
+                     'f0':['Full Cut 0',3],
                      'pfr':['Partial Front Right'],
                      'pfl':['Partial Front Left'],
                      'prr':['Partial Rear Right'],
@@ -95,6 +95,8 @@ class ToolList:
                     self._steplap_distances = kwargs['d_list']
                     self._length_list = kwargs['l_list']
                     self._populate_data(kwargs['data'])
+                    self._fn = kwargs['f_name']
+                    self._sno = kwargs['s_no']
                     print('Data recieved successfully.')
                 except KeyError as err:
                     print('Incorrect arguments passed.')
@@ -260,7 +262,7 @@ class ToolList:
                             temp._increment_steplap_counter()
 
                 #is there a better way to do this last outlier?
-                #outliers are necessary for the bound cases
+                #outliers are necessary for the bounded cases
                 if i == len(l) - 1:
                     temp = t[i+1]
                     if temp.steplap_type == 0:
@@ -282,8 +284,135 @@ class ToolList:
         self._nl = nl
         #send the following to the execution unit.
         #print(nl)
-        self.createExecutable()
+        self._map_exe()
+        #self.createExecutable()
         self._exe()
+        
+    def _map_exe(self):
+        
+        start_sheet = self._sno - 1
+        tl = self._tool_list
+        modulo = len(self._tool_list) - 1
+        long = 0
+        sc = 0
+        inner = []
+        
+        for i in range(len(self._nl)):
+            if tl[i % modulo].name == 'h':
+                inner.append(eTool('h', long, 0, 20))
+            elif tl[i % modulo].name == 'v':
+                inner.append(eTool('v', long, self._nl[i][1], 20))
+            elif tl[i % modulo].name == 'fp45':
+                sc += 1
+                inner.append(eTool('fp45', long, 0, 20))
+            elif tl[i % modulo].name == 'fm45':
+                sc += 1
+                inner.append(eTool('fm45', long, 0, 20))
+            elif tl[i % modulo].name == 'f0':
+                sc += 1
+                inner.append(eTool('f0', long, 0, 20))
+            elif tl[i % modulo].name == 's':
+                sc += 1
+                pass
+            
+            long += self._nl[i][0]
+        print('sheet-count - ', sc)
+        
+        print('Long - ', long)
+        
+        #c = start_sheet // sc
+        
+        #total sheet count
+        self.sc = sc
+        
+        rotation_pt = start_sheet % sc
+        
+        print('rotation - ', rotation_pt)
+        
+        
+        temp = 0
+        rot = 0
+        
+        for i in inner:
+            if i.name[0] == 'f':
+                if temp == rotation_pt:
+                    rot = i.long
+                    break
+                temp += 1
+                
+        for i in inner:
+            i.long -= rot
+            #i.count = c
+            if i.long < 0:
+                i.long += long
+            if i.long == 0:
+                i.count += 1
+                
+        for i in inner:
+            print(i.name, '-', i.long, '-', i.count)
+            
+        for i in inner:
+            if i.name[0] == 'f':
+                i.long += 4335
+            elif i.name == 'h':
+                i.long += 1250
+        
+        self._new_pl = long
+        self._new_etl = inner
+        #self._new_exe()
+        
+        
+    def _new_exe(self):
+        
+        def remove_null(l):
+            remove = []
+            for i in range(len(l)):
+                if l[i].count <= 0:
+                    remove.append(l[i])
+                    
+            for i in remove:
+                l.remove(i)
+                
+            return l
+        
+        def _find_min(l):
+            m = l[0].long
+            for i in l:
+                if i.long < m:
+                    m = i.long
+            return m
+        
+        feed = []
+        #executable tool list
+        op = []
+        etl = self._new_etl
+        
+        repeat_flag = False
+        
+        while True:            
+            etl = remove_null(etl)
+            if not etl:
+                break
+            closest = _find_min(etl)
+            for i in etl:
+                if closest == i.long:
+                    if repeat_flag:
+                        feed.append(0)
+                    else:
+                        feed.append(closest)
+                        repeat_flag = True
+                    i.long = self._new_pl
+                    op.append(i.name)
+                    #i.count -= 1
+                    
+                else:
+                    i.long -= closest
+            repeat_flag = False
+            
+        for i in zip(feed, op):
+            print(i)
+            
+        
         
     def createExecutable(self):
         inner = []
@@ -298,35 +427,42 @@ class ToolList:
         self._pl = pos
         self._exe_tl = inner
         
+        # rotating the list about the coil dividing cuts
+        
     def _exe(self):
-        terminate = 0
+        terminate = 200
         operation = []
         tool_number = []
         feed = []
         v_axis = []
         repeat_flag = False
-        sheet_count = []
-        sheet_counter = -1
-        while terminate < Config.COIL_LENGTH:
-            closest_cut = min([i[1] for i in self._exe_tl])
-            for i in self._exe_tl:
-                if i[1] == closest_cut:
-                    i[1] = self._pl
+        sheet_count = [self.sc]
+        
+        def _find_min(l):
+            m = l[0].long
+            for i in l:
+                if i.long < m:
+                    m = i.long
+            return m
+        
+        
+        while terminate > 0:
+            closest_cut = _find_min(self._new_etl)
+            for i in self._new_etl:
+                if i.long == closest_cut:
+                    i.long = self._new_pl
                     if repeat_flag:
                         feed.append(0)
                     else:
                         feed.append(closest_cut)
                         repeat_flag = True
-                    v_axis.append(i[2])
-                    operation.append(i[0])
-                    tool_number.append(Config.TOOL_NAME_MAP[i[0]][-1])
-                    sheet_count.append(sheet_counter)
-                    if i[0] == self._exe_tl[0][0]:
-                        sheet_counter += 1
+                    v_axis.append(i.lat)
+                    operation.append(i.name)
+                    tool_number.append(Config.TOOL_NAME_MAP[i.name][-1])
                 else:
-                    i[1] -= closest_cut
+                    i.long -= closest_cut
             repeat_flag = False
-            terminate += closest_cut
+            terminate -= 1
         start_index = 0
         end_index = 0
         for i in range(len(operation)):
@@ -350,7 +486,8 @@ class ToolList:
         leg_len = []
         cl_len = []
         job_shape = []
-        PandasWriterReader.writeExcel(feed=feed, v_axis=v_axis, 
+        fn = self._fn
+        PandasWriterReader.writeExcel(fname=fn,feed=feed, v_axis=v_axis, 
                                                   sec_feed=sec_feed, 
                                                   operation=operation, 
                                                   tool_number=tool_number, 
@@ -362,7 +499,8 @@ class ToolList:
                                                   p45_overcut=p45_overcut,
                                                   m45_overcut=m45_overcut, 
                                                   yoke_len=yoke_len, 
-                                                  leg_len=leg_len, cl_len=cl_len)
+                                                  leg_len=leg_len, cl_len=cl_len,
+                                                  )
 
     
 class Tool:

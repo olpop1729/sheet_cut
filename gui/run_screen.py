@@ -5,14 +5,13 @@ Created on Sat May  1 18:06:25 2021
 
 @author: omkar
 """
-from tkinter import Tk, Button, Entry, Listbox, END, Label
+from tkinter import Tk, Button, Entry, Listbox, END, Label, messagebox
 from tkinter import ttk
 from os import listdir
 from display_screen import DisplayWindow
 import json, re, sys
 sys.path.insert(1, '../step_lap/')
 from step_lap_v4 import ToolList
-from circuit import eProfile
 
 
 class AutoCompleteEntry:
@@ -138,16 +137,36 @@ class RunScreen:
                 l_list.append(0)
             else:
                 l_list.append(float(l))
+        
+        while True:
+        
+            file_name = self.content['output_entry'].get()
+            
+            if file_name == 'file_name':
+                messagebox.showwarning("showwarning", "Please enter a valid file name.")
+                return
+            else:
+                break
+            
+        while True:
+            s_no = int(self.content['start_sheet'].get())
+            
+            if s_no == 0:
+                messagebox.showwarning("showwarning", "Please enter a valid file name.")
+                return 
+            
+            else:
+                break
                 
-        self._run_prog(self.data, slp_dlist, l_list)
+        self._run_prog(self.data, slp_dlist, l_list, file_name, s_no)
         
     #to be implemnted
     #actual initialization of the execution object
-    def _run_prog(self, data, d, l):
-        a = ToolList(data = data, d_list = d, l_list = l)
-        print(a)
+    def _run_prog(self, data, d, l, fn, sno):
+        a = ToolList(data = data, d_list = d, l_list = l, f_name = fn, s_no=sno)
+        if a :
+            print('Profile building successful.')
         #eProfile(a)
-        pass
         
     #initialize the input parameter fields
     def _get_params(self):
@@ -225,6 +244,14 @@ class RunScreen:
         self.content['layer_input'] = Entry(self.content['param_frame'])
         self.content['layer_input'].insert(END, 0)
         self.content['layer_input'].grid(row = row_no, column=1)
+        
+        self.content['start_sheet'] = Entry(self.content['param_frame'])
+        self.content['start_sheet'].insert(END, 0)
+        self.content['start_sheet'].grid(row=row_no+1, column=1)
+        
+        self.content['starts_label'] = Label(self.content['param_frame'], 
+                                             text='Start Sheet')
+        self.content['starts_label'].grid(row=row_no+1, column=0)
             
         self.content['param_frame'].grid(row=1, column=2)
         
