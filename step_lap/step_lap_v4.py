@@ -456,7 +456,8 @@ class ToolList:
                     else:
                         feed.append(closest_cut)
                         repeat_flag = True
-                    v_axis.append(i.lat)
+                    if i.name == 'v':
+                        v_axis.append(i.lat)
                     operation.append(i.name)
                     tool_number.append(Config.TOOL_NAME_MAP[i.name][-1])
                 else:
@@ -473,7 +474,7 @@ class ToolList:
         end_index = start_index + len(self._nl) - 1
         feed = feed[:end_index]
         operation = operation[:end_index]
-        v_axis = v_axis[:end_index]
+        v_axis = v_axis[:self._stepcount]
         tool_number = tool_number[:end_index]
         sheet_count = sheet_count[:end_index]
         start_index = [start_index]
