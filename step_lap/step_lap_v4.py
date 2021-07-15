@@ -352,8 +352,15 @@ class ToolList:
             print(i.name, '-', i.long, '-', i.count)
             
         for i in inner:
-            if i.name[0] == 'f':
-                i.long += 4335
+            if i.name[0] == 'fm45':
+                i.long += 4335 + Config.OFFSET_FM45
+                
+            elif i.name[0] == 'fp45':
+                i.long += 4335 + Config.OFFSET_FP45
+                
+            elif i.name[0] == 'f0':
+                i.long += 4335 + Config.OFFSET_F0
+                
             elif i.name == 'h':
                 i.long += 1250
         
@@ -546,7 +553,6 @@ class Tool:
     def _set_steplap_counter(self):
         #1 is treated the same 3. The diffenrece lies in the implementaion
         #of the lengthyfy for the different tools
-        #open starts with the highest value in the vector
         if self.open_code in [4, 1, 7, 10]:
             self.front_counter = 0
             self.rear_counter = self.steplap_count - 1
@@ -591,10 +597,6 @@ class Tool:
         
     def show(self):
         print(vars(self))
-        
-    def _step(self):
-        #return (long_pos f, laong_pos r, lat_pos)
-        pass
     
                 
 if __name__ == '__main__':
