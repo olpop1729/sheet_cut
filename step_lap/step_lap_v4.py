@@ -15,9 +15,9 @@ from circuit import eTool
 
 
 class Config:
-    OFFSET_F0 = 0
-    OFFSET_FP45 = 0
-    OFFSET_FM45 = 0
+    OFFSET_F0 = 1.25
+    OFFSET_FP45 = -0.75
+    OFFSET_FM45 = 0.75
     DISTANCE_HOLE_VNOTCH = 1250
     DISTANCE_SHEAR_VNOTCH = 4335
     COIL_LENGTH = 400000
@@ -348,21 +348,22 @@ class ToolList:
             if i.long == 0:
                 i.count += 1
                 
-        for i in inner:
-            print(i.name, '-', i.long, '-', i.count)
             
         for i in inner:
-            if i.name[0] == 'fm45':
+            if i.name == 'fm45':
                 i.long += 4335 + Config.OFFSET_FM45
                 
-            elif i.name[0] == 'fp45':
+            elif i.name == 'fp45':
                 i.long += 4335 + Config.OFFSET_FP45
                 
-            elif i.name[0] == 'f0':
+            elif i.name == 'f0':
                 i.long += 4335 + Config.OFFSET_F0
                 
             elif i.name == 'h':
                 i.long += 1250
+                
+        for i in inner:
+            print(i.name, '-', i.long, '-', i.count)
         
         self._new_pl = long
         self._new_etl = inner
@@ -436,7 +437,18 @@ class ToolList:
         
         # rotating the list about the coil dividing cuts
         
+    # def _count_holes(self):
+    #     h1, h2 = 0, 0
+        
+    #     #count sheet seperators here
+        
+    #     for i in self._tool_list:
+    #         pass
+    #     pass
+        
     def _exe(self):
+        
+        #holes1, holes2 = self._count_holes()
         terminate = 200
         operation = []
         tool_number = []
