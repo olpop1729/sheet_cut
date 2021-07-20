@@ -351,16 +351,16 @@ class ToolList:
             
         for i in inner:
             if i.name == 'fm45':
-                i.long += 4335 + Config.OFFSET_FM45
+                i.long += Config.DISTANCE_SHEAR_VNOTCH + Config.OFFSET_FM45
                 
             elif i.name == 'fp45':
-                i.long += 4335 + Config.OFFSET_FP45
+                i.long += Config.DISTANCE_SHEAR_VNOTCH + Config.OFFSET_FP45
                 
             elif i.name == 'f0':
-                i.long += 4335 + Config.OFFSET_F0
+                i.long += Config.DISTANCE_SHEAR_VNOTCH + Config.OFFSET_F0
                 
             elif i.name == 'h':
-                i.long += 1250
+                i.long += Config.DISTANCE_HOLE_VNOTCH
                 
         for i in inner:
             print(i.name, '-', i.long, '-', i.count)
