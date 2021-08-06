@@ -10,6 +10,7 @@ from tkinter import ttk, Tk, messagebox
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, 
                                                NavigationToolbar2Tk)
+import numpy as np
 
 
 class labels:
@@ -41,11 +42,11 @@ class DisplayWindow:
         toolbar = NavigationToolbar2Tk(canvas,self._tk)
         toolbar.update()
         canvas.get_tk_widget().pack()
-        pass
+
     
     def _plotFm45(self, **kwargs):
         if labels.steplap_code in kwargs:
-            #logic for the plotting goes here inside this function
+             #logic for the plotting goes here inside this function
             print('found')
             x = np.linspace(10,100, 1)
         pass

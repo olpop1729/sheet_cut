@@ -362,6 +362,8 @@ class ToolList:
             elif i.name == 'h':
                 i.long += Config.DISTANCE_HOLE_VNOTCH
                 
+        #add adjustable/dynamic parameters here
+                
         for i in inner:
             print(i.name, '-', i.long, '-', i.count)
         
@@ -464,6 +466,14 @@ class ToolList:
                     m = i.long
             return m
         
+        def _feed_post(l):
+            prev = None
+            for i in range(len(l)):
+                if l[i] == prev:
+                    l[i] += 0.01 
+                prev = l[i]
+            return l
+        
         
         while terminate > 0:
             closest_cut = _find_min(self._new_etl)
@@ -492,6 +502,7 @@ class ToolList:
         start_index += 2
         end_index = start_index + len(self._nl) - 1
         feed = feed[:end_index]
+        feed = _feed_post(feed)
         operation = operation[:end_index]
         v_axis = v_axis[:self._stepcount]
         tool_number = tool_number[:end_index]

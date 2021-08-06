@@ -10,6 +10,7 @@ from tkinter import Tk, Button, Label, Entry, messagebox, StringVar
 from tkinter import ttk
 import json
 from run_screen import RunScreen
+from update_param import UpdateParamScreen
 
 class labels:
     steplap_type_map = {'No step-lap':0, 'Horizontal (Longitudinal)':1, 
@@ -47,6 +48,8 @@ class MainWindow:
                                          command=self._createScreen))
         content['buttons'].append(Button(parent, text='Run', 
                                          command=self._run_screen))
+        content['buttons'].append(Button(parent, text='Paramters', 
+                                         command=self._update_parameters))
         
         
         content['labels'] = []
@@ -57,6 +60,9 @@ class MainWindow:
                 j.pack()
         
         parent.mainloop()
+        
+    def _update_parameters(self):
+        UpdateParamScreen()
         
     def _run_screen(self):
         RunScreen()
@@ -186,6 +192,9 @@ class CreateCutProgramScreen:
         #print('write successfull')   
         
     def _clump_data(self, data):
+        
+        # add a verifier here
+        
         # data = self.content
         # for i in range(10):
         #     list_d = data[i]
