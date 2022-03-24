@@ -6,10 +6,9 @@ Created on Thu Jul  8 19:26:43 2021
 @author: omkar
 """
 
-from tkinter import Tk, Button, Entry, Listbox, END, Label, messagebox
+from tkinter import Tk, Button, Entry, END, Label
 from tkinter import ttk
-from os import listdir
-import json, re, sys
+import json
 
 
 class UpdateParamScreen:
@@ -66,7 +65,7 @@ class UpdateParamScreen:
         
         content['e_h_offset'] = Entry(content['main_frame'])
         content['l_h_offset'] = Label(content['main_frame'], 
-                                      test='Hole Offset')
+                                      text='Hole Offset')
         
         content['e_v_to_hole'].grid(row=1, column=1)
         content['l_v_to_hole'].grid(row=1, column=0)

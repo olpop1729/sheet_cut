@@ -15,6 +15,7 @@ from circuit import eTool
 
 
 class Config:
+    OFFSET_V_LAT = 0
     OFFSET_F0 = 1.25
     OFFSET_FP45 = -0.75
     OFFSET_FM45 = 0.75
@@ -202,7 +203,7 @@ class ToolList:
                             temp._increment_steplap_counter()
                         elif temp.open_code in [3, 4, 5, 6]:
                             pass
-                        #not need for hole cut
+                        #not needed for hole cut
                         # elif temp.open_code in [3, 4, 5, 6]:
                         #     nl[-1][0] += temp.steplap_vector[temp.rear_counter]
                         #     nl.append([l[i] + temp.steplap_vector[temp.front_counter], 0])
@@ -254,6 +255,11 @@ class ToolList:
                             nl[-1][0] += temp.steplap_vector[temp.rear_counter]
                             temp._increment_steplap_counter()
                             
+                    elif temp.name in ['prrp45, pflp45, prrf0, pfrf0, pfrm45']:
+                        #adjust token lengths for scrap cut here
+                        #nl[-1][0] += temp.step
+                        pass
+                            
                             
                 elif temp.steplap_type == 2:
                     if temp.name == 'v':
@@ -288,6 +294,8 @@ class ToolList:
         #self.createExecutable()
         self._exe()
         
+        
+    #maps the current logical tool cut sequence to the the actual physical equivivalent cut
     def _map_exe(self):
         
         start_sheet = self._sno - 1

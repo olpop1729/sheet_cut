@@ -13,6 +13,13 @@ class offset:
     fp45 = 0
     fm45 = 0
     f0 = 0
+    
+    hole_vnotch = 1250
+    fm45_vnotch = 4335
+    fp45_vnotch = 4335
+    f0_vnotch = 4335
+    
+    scrap = 10
 
 class YokeSplitter:
     
@@ -363,6 +370,7 @@ class JobProfile:
                 if curr.hasStepLap():
                     if isinstance(curr, YokeSplitter):
                         ll[-1][1] += curr.slp_vector[curr.slp_counter]
+                        #to do add scrap here and check
                         ll.append([curr.name, self.length_list[j] - curr.slp_vector[curr.slp_counter]])
                         curr.incrementSlpCounter()
                         
@@ -371,6 +379,15 @@ class JobProfile:
                         curr.incrementSlpCounter()
                 else:
                     ll.append([curr.name, self.length_list[j]])
+                    
+            for k in range(int(len(len(self.length_list)))):
+                # add conditional check for parameters here
+                temp = self.tool_list[k]
+                
+                if temp.hasStepLap():
+                    #check for steplap tyoe and add further documentations in here
+                    pass
+                pass
                 
                 if j == len(self.length_list) - 1:
                     curr = self.tool_list[j+1]
@@ -390,12 +407,12 @@ class JobProfile:
         pos = 0
         for i in self.exe_l:
             if i[0] == 'h':
-                exe.append([i[0], pos + 1250])
+                exe.append([i[0], pos + offset.hole_vnotch])
             elif i[0] == 'ys':
-                exe.append(['fp45', pos + 4335 + offset.fp45])
+                exe.append(['fp45', pos + offset.fp45_vnotch + offset.fp45])
                 exe.append(['v', pos])
             elif i[0][0] == 'f':
-                exe.append([i[0], pos + 4335 + offset.fm45])
+                exe.append([i[0], pos + offset.fm45_vnotch + offset.fm45])
                 
             pos += i[1]
         self.pl = pos

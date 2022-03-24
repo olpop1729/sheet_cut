@@ -6,11 +6,9 @@ Created on Sat May  1 23:15:04 2021
 @author: omkar
 """
 
-from tkinter import ttk, Tk, messagebox
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, 
-                                               NavigationToolbar2Tk)
+import matplotlib.pyplot as plt
 import numpy as np
+from tkinter import messagebox
 
 
 class labels:
@@ -20,35 +18,25 @@ class labels:
 
 class DisplayWindow:
     
-    def __init__(self, data=None):
-        self._tk = Tk()       
-        self.fig = Figure(figsize = (5, 5), dpi = 100)
+    def __init__(self, data=None, on_screen=None):
+        
+        fig, ax = plt.subplots(figsize=(10, 5))
+
         if data:
             #if the initialization is done noramllywith the mandatory data given
-            #declareing an internal private function just make thing more modular?
-            self._tk.title('Display Screen')
-            self._initialize(data)
+            
+            pass
+        elif on_screen:
+            pass
         else:
             #throw out the error message that will alert the user
             messagebox.showwarning("showwarning", "Cannot display empty object")
         #pass
     
-    def _initialize(self, data):
-        #initial window creation, window name, 
-        canvas = FigureCanvasTkAgg(self.fig, master=self._tk)  # A tk.DrawingArea.
-        self._canvas = canvas
-        canvas.draw()
-        canvas.get_tk_widget().pack()
-        toolbar = NavigationToolbar2Tk(canvas,self._tk)
-        toolbar.update()
-        canvas.get_tk_widget().pack()
-
-    
     def _plotFm45(self, **kwargs):
         if labels.steplap_code in kwargs:
              #logic for the plotting goes here inside this function
             print('found')
-            x = np.linspace(10,100, 1)
         pass
     
     def _plotFp45(self, **kwargs):
@@ -72,6 +60,7 @@ class DisplayWindow:
     def _plotF0(self, **kwargs):
         if labels.steplap_code in kwargs:
             #logic for the plotting goes here inside this function
+            
             pass
         pass
     

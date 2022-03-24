@@ -296,8 +296,6 @@ class JobProfile():
                 
             position += self.length_list[i]
         self.pattern_length = position
-        print(position)
-        print(self.pattern_length)
         self.executable_tool_list = inner
         
     def execute(self):
