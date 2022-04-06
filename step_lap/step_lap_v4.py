@@ -7,71 +7,10 @@ Created on Tue Apr  6 15:13:34 2021
 """
 import json
 import sys
-import pandas as pd
-import itertools
 from circuit import eTool
+from pandas_writer import PandasWriterReader
+from config import Config
 #  Tools definition section
-
-
-
-class Config:
-    OFFSET_V_LAT = 0
-    OFFSET_F0 = 1.25
-    OFFSET_FP45 = -0.75
-    OFFSET_FM45 = 0.75
-    DISTANCE_HOLE_VNOTCH = 1250
-    DISTANCE_SHEAR_VNOTCH = 4335
-    COIL_LENGTH = 400000
-    CUT_PROGRAM_OUTPUT_DIRECTORY = '../cut_program_output'
-    COIL_START_POSITION = 0 # w.r.t. V_Notch.
-    OUTPUT_FILE_NAME = 'CutFeed_'
-    LIST_NO = ['no', 'n','not', '0','negative','incorrect']
-    LIST_YES = ['yes', 'y', 'affirmative', 'correct', '1']
-    EXCEL_COLUMN_NAMES = ['Feed Dist', 'Vnotch Trav Dist', 'After Shear feed Tip Cut',
-                     'Tool', 'Tool no', 'Start Index', 'End Index',
-                     'Job Shape', 'No of Steps', 'Sheet Count', 'P45 OverCut', 
-                     'M45 OverCut', 'Yoke Len', 'Leg Len', 'Cnetral Limb Len']
-    TOOL_NAME_MAP = {'h':['Hole Punch', DISTANCE_HOLE_VNOTCH,2],
-                     'v':['V Notch', DISTANCE_SHEAR_VNOTCH,1],
-                     'fm45':['Full Cut -45',5],
-                     'fp45':['Full Cut +45',4],
-                     'f0':['Full Cut 0',3],
-                     'pfr':['Partial Front Right'],
-                     'pfl':['Partial Front Left'],
-                     'prr':['Partial Rear Right'],
-                     'prl':['Partial Rear Left']
-                     }
-    TOOL_DISTANCE_MAP = {'h':DISTANCE_HOLE_VNOTCH + COIL_START_POSITION,
-                         'v':COIL_START_POSITION,
-                         'fm45':DISTANCE_SHEAR_VNOTCH + COIL_START_POSITION + OFFSET_FM45,
-                         'fp45':DISTANCE_SHEAR_VNOTCH + COIL_START_POSITION + OFFSET_FP45,
-                         'f0': DISTANCE_SHEAR_VNOTCH + COIL_START_POSITION + OFFSET_F0
-                         }
-    
-    def findName(name) -> str:
-        while True:
-            break
-        pass
-
-
-class PandasWriterReader:
-    
-    def writeExcel(fname='Trial', **kwargs):
-        if len(kwargs.keys()) < len(Config.EXCEL_COLUMN_NAMES):
-            sys.exit(0)
-        cut_feed = list(itertools.zip_longest(kwargs['feed'], kwargs['v_axis'],kwargs['sec_feed'],
-                    kwargs['operation'], kwargs['tool_number'], 
-                    kwargs['start_index'], kwargs['end_index'], 
-                    kwargs['job_shape'], kwargs['number_of_steps'], 
-                    kwargs['sheet_count'], kwargs['p45_overcut'], 
-                    kwargs['m45_overcut'], kwargs['yoke_len'],
-                    kwargs['leg_len'], kwargs['cl_len']))
-        df = pd.DataFrame(data = cut_feed, columns=Config.EXCEL_COLUMN_NAMES)
-        df.index += 1
-        temp = pd.ExcelWriter('../cut_program_output/' + fname + '.xlsx')
-        df.to_excel(temp)
-        temp.save()
-
 
 
 
@@ -79,7 +18,9 @@ class PandasWriterReader:
 class ToolList:
     
     def __init__(self, **kwargs):
+        
         #initialze tool with json file
+        #not yet complete!
         if 'from_json' in kwargs:
             data = self._fromJson(kwargs['from_json'])
             self._populate_data(data)

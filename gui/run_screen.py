@@ -10,6 +10,7 @@ from tkinter import Tk, Button, Entry, Listbox, END, Label, messagebox
 from tkinter import ttk
 from os import listdir
 from display_screen import DisplayWindow
+from central_limb_v2 import TooList_CL
 import json, re, sys
 sys.path.insert(1, '../step_lap/')
 from step_lap_v4 import ToolList
@@ -65,10 +66,10 @@ class RunScreen:
         self._tk = Tk()
         self._file_names = self._get_file_names()
         self._init_screen(self._tk)
-            
+        self._ptype = 1 # default ptype (normal profiles)
     
-    #passice display of filenames, only invoked at the initialization.
-    #does not arecursively check for the file changes.
+    #passive display of filenames, only invoked at the initialization.
+    #does not, recursively, check for the file changes.
     def _get_file_names(self):
         path = '../cut_program_input/'
         return [i for i in listdir(path) if i.endswith('.json')]
@@ -119,6 +120,8 @@ class RunScreen:
     #get all the parameters from the input screen then pass on to the executing
     #object
     def _execute_prog(self):
+            
+        
         content = self.content
         slp_dlist = []
         #get the steplap distances
@@ -127,7 +130,7 @@ class RunScreen:
             if not d:
                 slp_dlist.append(0)
             else:
-                slp_dlist.append(int(d))
+                slp_dlist.append(float(d))
                 
         l_list = []
         #get the lengths from the input screen
@@ -137,36 +140,70 @@ class RunScreen:
                 l_list.append(0)
             else:
                 l_list.append(float(l))
-        
-        while True:
-        
-            file_name = self.content['output_entry'].get()
-            
-            if file_name == 'file_name':
-                messagebox.showwarning("showwarning", "Please enter a valid file name.")
-                return
-            else:
-                break
-            
-        while True:
-            s_no = int(self.content['start_sheet'].get())
-            
-            if s_no == 0:
-                messagebox.showwarning("showwarning", "Please enter a valid file name.")
-                return 
-            
-            else:
-                break
                 
-        self._run_prog(self.data, slp_dlist, l_list, file_name, s_no)
+                
+        #get the scrap lenght if necessary
+        scrap_length = 0
+        if self._ptype == 3:
+            scrap_length = int(self.content['scrap_entry'].get())
+            
+            if scrap_length < 0:
+                messagebox.showwarning("showwarning", "Scrap length cannot be 0.")
+                return
         
-    #to be implemnted
-    #actual initialization of the execution object
-    def _run_prog(self, data, d, l, fn, sno):
-        a = ToolList(data = data, d_list = d, l_list = l, f_name = fn, s_no=sno)
+        
+        file_name = self.content['output_entry'].get()
+        
+        if file_name == 'file_name' or file_name == None:
+            messagebox.showwarning("showwarning", "Please enter a valid file name.")
+            return
+
+            
+        s_no = int(self.content['start_sheet'].get())
+        
+        if s_no <= 0:
+            messagebox.showwarning("showwarning", "Initial sheet count starts at 1.")
+            return 
+            
+        
+        
+            
+        if self._ptype in [3, 4, 5]:
+            messagebox.showinfo("showinfo", "You are running a centralimb profile.")
+            self._run_clprofile(self.data, slp_dlist, l_list, file_name, s_no,
+                                scrap_length, self._ptype)
+            
+        elif self._ptype == 2:
+            messagebox.showinfo("showinfo","You are running a split-yoke profile.")
+            self._run_syprofile(self.data, slp_dlist, l_list, file_name, s_no)
+        
+        else:
+            messagebox.showinfo("showinfo", "You are running a side-limb yoke profile.")
+            self._run_slyprofile(self.data, slp_dlist, l_list, file_name, s_no)
+        
+    #run side limb profile
+    def _run_slyprofile(self, data, d, l, fn, sno):
+        
+        if self._ptype == 1:
+            a = ToolList(data = data, d_list = d, l_list = l, f_name = fn, s_no=sno)
+            if a :
+                messagebox.showinfo("showinfo", "Profile build successful.")
+            #eProfile(a)
+            
+            
+    # run central limb profile
+    def _run_clprofile(self, data, d, l, fn, sno, scrap_l, p_type):
+        a = TooList_CL(data = data , d_list = d, l_list = l , 
+                       f_name = fn, s_no = sno, scrap_length = scrap_l, 
+                       p_type = self._ptype)
         if a :
-            print('Profile building successful.')
-        #eProfile(a)
+            messagebox.showinfo("showinfo", "Profile build successful.")
+    
+    
+    # run split yoke profile
+    def _run_syprofile(self):
+        pass
+        
         
     #initialize the input parameter fields
     def _get_params(self):
@@ -217,6 +254,33 @@ class RunScreen:
         self.content['steplap_label'] = []
         self.content['param_frame'] = ttk.Frame(self._tk)
         
+        
+        # step lap type - ptype mapping done here
+        for i in data:
+            if data[i]['name'] == 's':
+                if data[i]['steplap_type'] == 2:
+                    self._ptype = 4
+                    break
+                else:
+                    self._ptype = 3
+            elif data[i]['name'] == 'ys':
+                self._ptype = 2
+                break
+            elif data[i]['name'][:4] == 'fish':
+                if data[i]['steplap_type'] == 2:
+                    self._ptype = 5
+                    break
+                # todo error/validation here
+            
+            else:
+                self._ptype = 1
+                
+        for i in data:
+            if data[i]['name'] in ['fish_head', 'fish_tail']:
+                if data[i]['steplap_type'] == 2:
+                    self._ptype = 5
+                    break
+                
         for i in data:
             if data[i]['steplap_count'] > 1:
                 self.content['steplap_label'].append(Label(self.content['param_frame'], 
@@ -229,9 +293,31 @@ class RunScreen:
             self.content['steplap_label'][i].grid(row=i, column=0)
             self.content['steplap_ds'][i].grid(row=i, column=1)
             
-        if ('layer_label' in self.content):
+        if ('layer_label' in self.content.keys()):
+            self.content['layer_label'].destroy()
+            del self.content['layer_label']
+            
+        if ('layer_input' in self.content.keys()):
             self.content['layer_input'].destroy()
             del self.content['layer_input']
+            
+        if ('start_sheet' in self.content.keys()):
+            self.content['start_sheet'].destroy()
+            del self.content['start_sheet']
+            
+        if ('starts_label' in self.content.keys()):
+            self.content['starts_label'].destroy()
+            del self.content['starts_label']
+            
+        if ('scrap_entry' in self.content.keys()):
+            print('deleting scrap')
+            self.content['scrap_entry'].destroy()
+            del self.content['scrap_entry']
+            
+        if ('scrap_label' in self.content.keys()):
+            self.content['scrap_label'].destroy()
+            del self.content['scrap_label']
+            
             
         if ('steplap_ds' in self.content):
             row_no = len(self.content['steplap_ds'])
@@ -246,12 +332,23 @@ class RunScreen:
         self.content['layer_input'].grid(row = row_no, column=1)
         
         self.content['start_sheet'] = Entry(self.content['param_frame'])
-        self.content['start_sheet'].insert(END, 0)
+        self.content['start_sheet'].insert(END, 1)
         self.content['start_sheet'].grid(row=row_no+1, column=1)
         
         self.content['starts_label'] = Label(self.content['param_frame'], 
                                              text='Start Sheet')
         self.content['starts_label'].grid(row=row_no+1, column=0)
+        
+        if self._ptype in [3, 4, 5]:
+            self.content['scrap_entry'] = Entry(self.content['param_frame'])
+            self.content['scrap_entry'].insert(END, 0)
+            self.content['scrap_entry'].grid(row=row_no+2, column=1)
+            
+            self.content['scrap_label'] = Label(self.content['param_frame'], 
+                                             text='Scrap Length')
+            self.content['scrap_label'].grid(row=row_no+2, column=0)
+            
+            
             
         self.content['param_frame'].grid(row=1, column=2)
         

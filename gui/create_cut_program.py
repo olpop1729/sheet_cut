@@ -10,6 +10,7 @@ from tkinter import Tk, Button, Label, Entry, messagebox, StringVar
 from tkinter import ttk
 import json
 from label_file import Labels
+from display_screen import DisplayWindow
 
 
 class CreateCutProgramScreen:
@@ -94,6 +95,7 @@ class CreateCutProgramScreen:
         self.content = content
         content['save_frame'].pack()
         parent.mainloop()
+        
 
     def _save(self):
         file_name = self.content['file_name'].get()
@@ -112,6 +114,7 @@ class CreateCutProgramScreen:
             tools.append(tool)
 
         self._process_input(tools, file_name)
+        
 
     def _process_input(self, tools, fn):
         data = {}
@@ -137,6 +140,7 @@ class CreateCutProgramScreen:
         with open( path , 'w') as fp:
             fp.write(json.dumps(data, indent=4))
         #print('write successfull')
+        
 
     def _clump_data(self, data):
 
@@ -145,8 +149,11 @@ class CreateCutProgramScreen:
         #    #partial cut name start with pr or pf, use them as identifiers
         #    if data[i].name == 'pr' or data[i].name == 'pf':
         #        pass
+    
         pass
-
+    
+    
+    
     def _addRow(self):
         last_row = len(self.content['entries'])+1
         row = []
@@ -187,4 +194,39 @@ class CreateCutProgramScreen:
             print('No row to delete.')
             
     def _display(self):
-        print('here')
+        tools = []
+        rows = self.content['entries']
+        for row in rows:
+            tool = []
+            for i in range(len(row)):
+                if not row[1].get():
+                    messagebox.showwarning("showwarning", "Please remove empty rows.")
+                    return
+                tool.append(row[i].get())
+            tools.append(tool)
+        data = {}
+        for i in range(len(tools)):
+            datum = {}
+            datum[self._index_map[0]] = tools[i][1]
+            datum[self._index_map[1]] = Labels.steplap_type_map[tools[i][2]]
+            if not tools[i][3]:
+                datum[self._index_map[2]] = 1
+            else:
+                datum[self._index_map[2]] = int(tools[i][3])
+            datum[self._index_map[3]] = Labels.open_code_map[tools[i][4]]
+
+            #access to this datum entry should be hidden from the user.
+            datum[self._index_map[4]] = 0
+
+            data[i] = datum
+            
+        
+        DisplayWindow(on_screen=data)
+        
+        
+        
+        
+        
+        
+        
+        
