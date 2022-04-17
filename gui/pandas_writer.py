@@ -15,6 +15,7 @@ class PandasWriterReader:
     
     def writeExcel(fname='Trial', **kwargs):
         if len(kwargs.keys()) < len(Config.EXCEL_COLUMN_NAMES):
+            print('someting wong')
             sys.exit(0)
         cut_feed = list(itertools.zip_longest(kwargs['feed'], kwargs['v_axis'],kwargs['sec_feed'],
                     kwargs['operation'], kwargs['tool_number'], 

@@ -66,7 +66,7 @@ class RunScreen:
         self._tk = Tk()
         self._file_names = self._get_file_names()
         self._init_screen(self._tk)
-        self._ptype = 1 # default ptype (normal profiles)
+        self._ptype = 1 # default profile - type (normal profiles ie. sidelimb yoke)
     
     #passive display of filenames, only invoked at the initialization.
     #does not, recursively, check for the file changes.
@@ -165,13 +165,16 @@ class RunScreen:
             messagebox.showwarning("showwarning", "Initial sheet count starts at 1.")
             return 
             
-        
+        layers = int(self.content['layer_input'].get())
+        if layers != 1:
+            messagebox.showwarning("showwarning", "Layer count cannot be 0 (Supports only one layer in this update).")
+            return
         
             
         if self._ptype in [3, 4, 5]:
             messagebox.showinfo("showinfo", "You are running a centralimb profile.")
             self._run_clprofile(self.data, slp_dlist, l_list, file_name, s_no,
-                                scrap_length, self._ptype)
+                                scrap_length, self._ptype, layers)
             
         elif self._ptype == 2:
             messagebox.showinfo("showinfo","You are running a split-yoke profile.")
@@ -192,10 +195,10 @@ class RunScreen:
             
             
     # run central limb profile
-    def _run_clprofile(self, data, d, l, fn, sno, scrap_l, p_type):
+    def _run_clprofile(self, data, d, l, fn, sno, scrap_l, p_type, layers):
         a = TooList_CL(data = data , d_list = d, l_list = l , 
                        f_name = fn, s_no = sno, scrap_length = scrap_l, 
-                       p_type = self._ptype)
+                       p_type = self._ptype, layers = layers)
         if a :
             messagebox.showinfo("showinfo", "Profile build successful.")
     
@@ -255,7 +258,7 @@ class RunScreen:
         self.content['param_frame'] = ttk.Frame(self._tk)
         
         
-        # step lap type - ptype mapping done here
+        # ptype mapping done here
         for i in data:
             if data[i]['name'] == 's':
                 if data[i]['steplap_type'] == 2:
@@ -266,11 +269,6 @@ class RunScreen:
             elif data[i]['name'] == 'ys':
                 self._ptype = 2
                 break
-            elif data[i]['name'][:4] == 'fish':
-                if data[i]['steplap_type'] == 2:
-                    self._ptype = 5
-                    break
-                # todo error/validation here
             
             else:
                 self._ptype = 1

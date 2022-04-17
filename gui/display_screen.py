@@ -55,8 +55,15 @@ class DisplayWindow:
         position = 0
         is_front = False
         
+        keys = [str(i) for i in range(len(data.keys()))]
+        keys = keys[::-1]
+        
         for i in data:
-            position = (mult*3 + 2)
+            
+            prev = 3 * (mult + 1) + 2
+            position = mult * 3 + 2
+            
+            
             if data[i]['name'] == 'fp45':
                 self._plotFp45(pos=position, linestyle=None)
                 
@@ -76,6 +83,24 @@ class DisplayWindow:
                 self._plotSpear(pos=position, is_front=is_front, 
                                 linestyle=None)
                 is_front = not is_front
+                
+            elif data[i]['name'] == 'fish_head':
+                self._plotFishHead(pos=position, is_front=is_front, 
+                                   open_code=data[i]['open_code'])
+                is_front = not is_front
+                
+            elif data[i]['name'] == 'fish_tail':
+                self._plotFishTail(pos=position, is_front=is_front, 
+                                   open_code=data[i]['open_code'])
+                is_front = not is_front
+                
+                
+            elif data[i]['name'] == 'ys':
+                self._plotSplitYoke(pos=position)
+            
+                
+            self._annotate( position, prev, int(keys[mult]))
+            
             mult+=1
         
         top = [1] * (position + 3)
@@ -86,6 +111,9 @@ class DisplayWindow:
         plt.plot(x, top , color = 'black')
         plt.plot( x, bot, color = 'black')
         plt.plot(x, mid , 'b-.', linewidth=1)
+        
+        plt.annotate('', xy=(position + 5, 0), xytext=(position + 3, 0), 
+                     arrowprops=dict(arrowstyle='->'))
         
         plt.xlim(-3, position + 5)
         plt.ylim(-4, 4)
@@ -130,6 +158,13 @@ class DisplayWindow:
 
         plt.plot(-y+pos, y, color = 'red', linewidth=1)
         plt.plot(y+pos, y, color = 'red', linewidth=1)
+        
+    def _plotSplitYoke(self, **kwargs):
+        pos = kwargs['pos']
+        y1 = np.linspace(-1, 1, 10)
+        y2 = np.linspace(0, 1, 5)
+        plt.plot(pos+y2, y2, color='black')
+        plt.plot(pos-y1, y1, color='black')
     
     def _plotF0(self, **kwargs):
         linestyle = kwargs['linestyle']
@@ -176,13 +211,50 @@ class DisplayWindow:
                     plt.plot(pos - y2 + h, y2, color='cyan')
                     
     def _plotFishHead(self, **kwargs):
-        pass
+        is_front = kwargs['is_front']
+        pos = kwargs['pos']
+        if not is_front:
+            for i in range(3):
+                y1 = np.linspace(0.5 +(i/10), 1, 5)
+                y2 = np.linspace(-1, 0.5 +(i/10), 5)
+                plt.plot(y1 - (i/10) - 1 + pos, y1 , color='black')
+                plt.plot(-y2 + (i/10) + pos, y2 , color='black')
         
+        else:
+            
+            for i in range(3):
+                y1 = np.linspace(0.5 + (i/10), 1, 5)
+                y2 = np.linspace(-1, 0.5 + (i/10), 5)
+                plt.plot(-y1 + (i/10) + 1 + pos, y1 , color='black')
+                plt.plot(y2 - (i/10) + pos, y2 , color='black')
+            
+            
+    def _plotFishTail(self, **kwargs):
+        is_front = kwargs['is_front']
+        pos = kwargs['pos']
         
+        if not is_front:
+            for i in range(3):
+                y1 = np.linspace(-0.5 + (i/10), 1, 5)
+                y2 = np.linspace(-1, -0.5+ (i/10), 5)
+                plt.plot(y1 - (i/10) + pos, y1 , color='black')
+                plt.plot(-y2 + (i/10) - 1 + pos, y2 , color='black')
+        
+        else:
+        
+            for i in range(3):
+                y1 = np.linspace(-0.5 + (i/10), 1, 5)
+                y2 = np.linspace(-1, -0.5 + (i/10), 5)
+                plt.plot(-y1 + (i/10) + pos, y1 , color='black')
+                plt.plot(y2 - (i/10) + 1 + pos, y2 , color='black')
+
     
-    def _annotate(self, **kwargs):
-        #universal common logic that follows the L labels for all the
-        #constituents of the cut profile.
+    
+    def _annotate(self, a, b, count):
+        if count > 0:
+            plt.annotate('', xy=(b,-2), xytext=(a,-2), arrowprops=dict(arrowstyle='<->'))
+            plt.annotate('L'+str(count),xy=(b,-2.5), xytext=((a+b)/2 - 0.15,-2.5) )
+
         
-        pass
+        
     

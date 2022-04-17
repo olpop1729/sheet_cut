@@ -140,6 +140,7 @@ class CreateCutProgramScreen:
         with open( path , 'w') as fp:
             fp.write(json.dumps(data, indent=4))
         #print('write successfull')
+        messagebox.showinfo("showinfo", fn + " saved succesfully.")
         
 
     def _clump_data(self, data):
