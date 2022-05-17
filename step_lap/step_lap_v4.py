@@ -10,6 +10,7 @@ import sys
 from circuit import eTool
 from pandas_writer import PandasWriterReader
 from config import Config
+import math
 #  Tools definition section
 
 
@@ -230,7 +231,9 @@ class ToolList:
                         
         self._nl = nl
         #send the following to the execution unit.
-        #print(nl)
+        print("------")
+        print(nl)
+        print("------")
         self._map_exe()
         #self.createExecutable()
         self._exe()
@@ -265,8 +268,10 @@ class ToolList:
                 pass
             
             long += self._nl[i][0]
+            long = round(long, 5)
+
         print('sheet-count - ', sc)
-        
+        long = float(math.ceil(long))
         print('Long - ', long)
         
         #c = start_sheet // sc
@@ -296,8 +301,7 @@ class ToolList:
                 i.long += long
             if i.long == 0:
                 i.count += 1
-                
-            
+        
         for i in inner:
             if i.name == 'fm45':
                 i.long += Config.DISTANCE_SHEAR_VNOTCH + Config.OFFSET_FM45
@@ -440,6 +444,7 @@ class ToolList:
                     tool_number.append(Config.TOOL_NAME_MAP[i.name][-1])
                 else:
                     i.long -= closest_cut
+                    i.long = round(i.long, 5)
             repeat_flag = False
             terminate -= 1
         start_index = 0
@@ -515,7 +520,7 @@ class Tool:
         if n > 1:
             #vector for even step count
             if n % 2 == 0:
-                self.steplap_vector = [(i/2)*d for i in range( n//2 , -n//2 - 1, -1) if i != 0]
+                self.steplap_vector = [(i - i/(2*abs(i)))*d for i in range( n//2 , -n//2 - 1, -1) if i != 0]
             #vector for odd step count
             else:
                 self.steplap_vector = [i*d for i in range( n//2 , -n//2, -1) ]
@@ -537,8 +542,8 @@ class Tool:
             self.front_counter = 0
             self.rear_counter = 0
         elif self.open_code == 6:
-            self.front_counter == self.steplap_count - 1
-            self.rear_counter == self.steplap_count - 1
+            self.front_counter = self.steplap_count - 1
+            self.rear_counter = self.steplap_count - 1
             
     
     #steping to next steplap distance
