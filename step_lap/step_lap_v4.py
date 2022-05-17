@@ -515,7 +515,7 @@ class Tool:
         if n > 1:
             #vector for even step count
             if n % 2 == 0:
-                self.steplap_vector = [i*d for i in range( n//2 , -n//2, -1) if i != 0]
+                self.steplap_vector = [(i/2)*d for i in range( n//2 , -n//2 - 1, -1) if i != 0]
             #vector for odd step count
             else:
                 self.steplap_vector = [i*d for i in range( n//2 , -n//2, -1) ]
