@@ -276,13 +276,14 @@ class SpearH:
         n = self.steplap_count // 2
         d = self.steplap_distance
         if self.steplap_count % 2 == 0:
-            self.steplap_vector = [i*d for i in range(n , -n-1, -1) if n != 0]
+            self.steplap_vector = [round((i - i/(2*abs(i)))*d, 5) 
+                                   for i in range(n , -n-1, -1) if i != 0]
         else:
             self.steplap_vector = [i*d for i in range(n , -n-1, -1)]
 
-        if self.open:
+        if self.open == 1:
             return
-        else:
+        elif self.open == 2:
             self.steplap_vector = self.steplap_vector[::-1]
             
             
@@ -299,10 +300,12 @@ class SpearH:
         for i in range(n):
 
             vtv = sum(2*dn[:i]) + i * (l + 2*x)
+            vtv = round(vtv, 5)
 
             if len(hl) > 0:
                 for j in hl:
-                    exe.append(['h', vtv + j + x + dn[i], 0])
+                    exe.append(['h', 
+                                round(vtv + j + x + dn[i], 5), 0])
             exe.append(['v', vtv, x])
             exe.append(['fp45', vtv - x, 0])
             exe.append(['fm45', vtv + x, 0])
@@ -351,13 +354,11 @@ class SpearH:
 
                 else:
                     i[1] -= cc
+                    i[1] = round(i[1], 5)
 
         start_index = 0
         end_index = 0
-        for i in range(len(operation)):
-            if operation[i][0] == 'f':
-                start_index = i
-                break
+
             
         sec_feed = []
         number_of_steps = []
@@ -368,6 +369,12 @@ class SpearH:
         cl_len = []
         job_shape = []
         
+        for i in range(len(operation)):
+            if operation[i][0] == 'f':
+                start_index = i
+                break
+        start_index += 2
+        end_index = start_index + len(self.exe) - 1
         
         sheet_count = []
         start_index = [start_index]
