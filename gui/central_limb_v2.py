@@ -11,9 +11,7 @@ from pandas_writer import PandasWriterReader
 from config import Config
 
 #this is temporary, will be removed when parameters are loaded
-class offset:
-    fm45 = 0.0
-    fp45 = 0.0
+
 
 class TooList_CL:
     
@@ -166,9 +164,9 @@ class SpearV:
     def execute(self):
         for i in self.exe:
             if i[0] == 'fp45':
-                i[1] += 4335 + offset.fp45
+                i[1] += 4335 + Config.OFFSET_FP45
             elif i[0] == 'fm45':
-                i[1] += 4335 + offset.fm45
+                i[1] += 4335 + Config.OFFSET_FM45
             elif i[0] == 'h':
                 i[1] += 1250
         terminate = 500
@@ -320,9 +318,9 @@ class SpearH:
 
         for i in exe:
             if i[0] in ['fm45']:
-                i[1] += 4335 + offset.fm45
+                i[1] += 4335 + Config.OFFSET_FM45
             elif i[0] in ['fp45']:
-                i[1] += 4335 + offset.fp45
+                i[1] += 4335 + Config.OFFSET_FP45
             elif i[0] == 'h':
                 i[1] += 1250
             elif i[0] == 0:
