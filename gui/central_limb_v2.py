@@ -164,11 +164,11 @@ class SpearV:
     def execute(self):
         for i in self.exe:
             if i[0] == 'fp45':
-                i[1] += 4335 + Config.OFFSET_FP45
+                i[1] += Config.DISTANCE_SHEAR_VNOTCH + Config.OFFSET_FP45
             elif i[0] == 'fm45':
-                i[1] += 4335 + Config.OFFSET_FM45
+                i[1] += Config.DISTANCE_SHEAR_VNOTCH + Config.OFFSET_FM45
             elif i[0] == 'h':
-                i[1] += 1250
+                i[1] += Config.DISTANCE_HOLE_VNOTCH
         terminate = 500
         feed = []
         vaxis = []
@@ -318,11 +318,11 @@ class SpearH:
 
         for i in exe:
             if i[0] in ['fm45']:
-                i[1] += 4335 + Config.OFFSET_FM45
+                i[1] += Config.DISTANCE_SHEAR_VNOTCH + Config.OFFSET_FM45
             elif i[0] in ['fp45']:
-                i[1] += 4335 + Config.OFFSET_FP45
+                i[1] += Config.DISTANCE_SHEAR_VNOTCH + Config.OFFSET_FP45
             elif i[0] == 'h':
-                i[1] += 1250
+                i[1] += Config.DISTANCE_HOLE_VNOTCH
             elif i[0] == 0:
                 i[1] += 0
 

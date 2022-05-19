@@ -8,15 +8,15 @@ Created on Wed Apr  6 11:39:39 2022
 
 
 class Config:
-    OFFSET_V_LAT = 0
-    OFFSET_F0 = 1.25
-    OFFSET_FP45 = -0.75
-    OFFSET_FM45 = 0.75
-    DISTANCE_HOLE_VNOTCH = 1250
-    DISTANCE_SHEAR_VNOTCH = 4335
-    COIL_LENGTH = 400000
+    OFFSET_V_LAT = 0.0
+    OFFSET_F0 = 0.0
+    OFFSET_FP45 = -1.665
+    OFFSET_FM45 = 0.865
+    DISTANCE_HOLE_VNOTCH = 1250.125
+    DISTANCE_SHEAR_VNOTCH = 4334.5
+    COIL_LENGTH = 400000.0
     CUT_PROGRAM_OUTPUT_DIRECTORY = '../cut_program_output'
-    COIL_START_POSITION = 0 # w.r.t. V_Notch.
+    COIL_START_POSITION = 0.0 # w.r.t. V_Notch.
     OUTPUT_FILE_NAME = 'CutFeed_'
     LIST_NO = ['no', 'n','not', '0','negative','incorrect']
     LIST_YES = ['yes', 'y', 'affirmative', 'correct', '1']
