@@ -11,6 +11,9 @@ from tkinter import ttk
 import json
 from label_file import Labels
 from display_screen import DisplayWindow
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
+                                               NavigationToolbar2Tk)
 
 
 class CreateCutProgramScreen:
@@ -23,7 +26,9 @@ class CreateCutProgramScreen:
         self._index_map = {0:'name', 1:'steplap_type', 2:'steplap_count',
                            3:'open_code', 4:'_steplap_distance'}
 
+        self.plot_flag = False
         self.__initScreen(self._tk)
+        
 
     def __initScreen(self, parent):
         parent.title('Create program screen.')
@@ -33,16 +38,22 @@ class CreateCutProgramScreen:
         frame = ttk.Frame(parent)
         frame.pack()
         content['frame_table'] = frame
+        
+        content['func_frame'] = ttk.Frame(parent)
 
 
-        content['button_addrow'] = Button(parent, text='Add row', command=self._addRow)
+        content['button_addrow'] = Button(content['func_frame'], 
+                                          text='Add row', 
+                                          command=self._addRow)
         content['button_addrow'].pack(side='left')
 
-        content['button_del_last'] = Button(parent, text='Delete last',
+        content['button_del_last'] = Button(content['func_frame'], 
+                                            text='Delete last',
                                             command=self._delete_last)
         content['button_del_last'].pack(side='left')
         
-        content['button_display'] = Button(parent, text='Display', 
+        content['button_display'] = Button(content['func_frame'], 
+                                           text='Display', 
                                            command=self._display)
         content['button_display'].pack(side='left')
 
@@ -91,9 +102,15 @@ class CreateCutProgramScreen:
                 row.append(e)
 
             content['entries'].append(row)
+            
+        content['display_frame'] = ttk.Frame(parent)
 
-        self.content = content
+        content['func_frame'].pack()
         content['save_frame'].pack()
+        content['display_frame'].pack()
+        
+        self.content = content
+        
         parent.mainloop()
         
 
@@ -162,8 +179,8 @@ class CreateCutProgramScreen:
             if i == 1:
                 values = StringVar()
                 e = ttk.Combobox(self.content['frame_table'], textvariable = values)
-                e['values'] = ('fm45', 'fp45', 'f0', 'h', 'v',
-                               's', 'ys')
+                e['values'] = Labels.tool_name_tuple
+                
                 e.grid(row = last_row, column=i)
 
             elif i == len(self._frame_cols) - 1:
@@ -221,8 +238,57 @@ class CreateCutProgramScreen:
 
             data[i] = datum
             
+        width = len(data.keys())
         
-        DisplayWindow(on_screen=data)
+        if not self.plot_flag:
+            self.display_fig = Figure(figsize = (width + 3, 5), 
+                                      dpi = 100)
+            self.display_plot = self.display_fig.add_subplot(111)
+            
+            self.canvas = FigureCanvasTkAgg(self.display_fig, 
+                                       master = self.content['display_frame'])
+            
+            self.plot_flag = True
+        
+        else:
+            self.display_fig.set_figwidth(width + 6)
+            self.canvas.config(width=width, height=5)
+            self.display_plot.clear()
+            
+        y = [i**2 for i in range(101)]
+        self.display_plot.plot(y)
+        self.canvas.draw()
+        self.canvas.get_tk_widget().pack()
+            
+        # def _tk_grapher(data, frame):
+            
+        #     if not data:
+        #         return
+            
+        #     else:
+        #         fig = Figure(figsize = (12, 5), dpi = 100)
+        #         y = [i**2 for i in range(101)]
+        #         plot1 = fig.add_subplot(111)
+        #         plot1.plot(y)
+        #         # fig.set_figheight(12)
+        #         # fig.set_figwidth(3)
+        #         canvas = FigureCanvasTkAgg(fig, 
+        #                                     master = frame)
+        #         canvas.draw()
+        #         canvas.get_tk_widget().pack()
+                
+        #         toolbar = NavigationToolbar2Tk(canvas, 
+        #                                         frame)
+        #         toolbar.update()
+        #         canvas.get_tk_widget().pack()
+
+                
+            
+        # _tk_grapher(data, self.content['display_frame'])
+        
+        #DisplayWindow(on_screen=data)
+        
+        
         
         
         

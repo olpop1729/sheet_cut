@@ -62,13 +62,13 @@ class eProfile:
         l = sum(self.len_list)
         exe = []
         vtv = 0
-        for i in range(n):
+        for i in range(n * m):
 
-            vtv = sum(2*dn[:i]) + i * (l + 2*x)
+            vtv = sum(2*dn[:(i//m)]) + (i//m) * (l + 2*x)
 
             if len(hl) > 0:
                 for j in hl:
-                    exe.append(['h', vtv + j + x + dn[i], 0])
+                    exe.append(['h', vtv + j + x + dn[(i//m)], 0])
             exe.append(['v', vtv, x])
             exe.append(['fp45', vtv - x, 0])
             exe.append(['fm45', vtv + x, 0])

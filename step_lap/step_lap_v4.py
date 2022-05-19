@@ -40,6 +40,7 @@ class ToolList:
                     self._populate_data(kwargs['data'])
                     self._fn = kwargs['f_name']
                     self._sno = kwargs['s_no']
+                    self._layers = kwargs['layers']
                     print('Data recieved successfully.')
                 except KeyError as err:
                     print('Incorrect arguments passed.')
@@ -122,16 +123,24 @@ class ToolList:
         
     #returns an ExecutableTool object which is execution ready
     def _lengthyfy(self):
-        #there must be a better way to this find it.
-        nl = []
-        #nl is the list of tuple corresponding to the respective steplap types
-        #their values
+
         
         l = self._length_list
         t = self._tool_list
+    
+        #final new list
+        fnl = []
         for j in range(self._stepcount):
+            #there must be a better way to this find it.
+            nl = []
+            #nl is the list of tuple corresponding to the respective steplap types
+            #their values
             for i in range(len(l)):
+                
                 temp = t[i]
+                print("####")
+                temp.show()
+                print('####')
                 if temp.steplap_type  == 0:
                     nl.append([l[i],0])
                 elif temp.steplap_type == 1:
@@ -226,10 +235,12 @@ class ToolList:
                         #that are currently being looked upon
                         pass
                     
-                    
-                    
+            print("------")
+            print(nl)
+            print("------")  
+            fnl.extend(nl*self._layers)    
                         
-        self._nl = nl
+        self._nl = fnl
         #send the following to the execution unit.
         print("------")
         print(nl)
@@ -271,7 +282,7 @@ class ToolList:
             long = round(long, 5)
 
         print('sheet-count - ', sc)
-        long = float(math.ceil(long))
+        long = float(round(long, 5))
         print('Long - ', long)
         
         #c = start_sheet // sc
@@ -315,8 +326,10 @@ class ToolList:
             elif i.name == 'h':
                 i.long += Config.DISTANCE_HOLE_VNOTCH
                 
-        #add adjustable/dynamic parameters here
+            i.long = round(i.long, 5)
                 
+        #add adjustable/dynamic parameters here
+        
         for i in inner:
             print(i.name, '-', i.long, '-', i.count)
         

@@ -166,13 +166,13 @@ class RunScreen:
             return 
             
         layers = int(self.content['layer_input'].get())
-        if layers != 1:
+        if layers == 0:
             messagebox.showwarning("showwarning", "Layer count cannot be 0 (Supports only one layer in this update).")
             return
         
             
         if self._ptype in [3, 4, 5]:
-            messagebox.showinfo("showinfo", "You are running a centralimb profile.")
+            messagebox.showinfo("showinfo", f"You are running a centralimb profile. Program type - {self._ptype}")
             self._run_clprofile(self.data, slp_dlist, l_list, file_name, s_no,
                                 scrap_length, self._ptype, layers)
             
@@ -182,13 +182,14 @@ class RunScreen:
         
         else:
             messagebox.showinfo("showinfo", "You are running a side-limb yoke profile.")
-            self._run_slyprofile(self.data, slp_dlist, l_list, file_name, s_no)
+            self._run_slyprofile(self.data, slp_dlist, l_list, file_name, s_no, layers)
         
     #run side limb profile
-    def _run_slyprofile(self, data, d, l, fn, sno):
+    def _run_slyprofile(self, data, d, l, fn, sno, layers):
         
         if self._ptype == 1:
-            a = ToolList(data = data, d_list = d, l_list = l, f_name = fn, s_no=sno)
+            a = ToolList(data = data, d_list = d, l_list = l, f_name = fn, s_no=sno, 
+                         layers = layers)
             if a :
                 messagebox.showinfo("showinfo", "Profile build successful.")
             #eProfile(a)
@@ -264,6 +265,9 @@ class RunScreen:
                 if data[i]['steplap_type'] == 2:
                     self._ptype = 4
                     break
+                elif data[i]['steplap_type'] == 3:
+                    self._ptype = 5
+                    break
                 else:
                     self._ptype = 3
             elif data[i]['name'] == 'ys':
@@ -273,11 +277,11 @@ class RunScreen:
             else:
                 self._ptype = 1
                 
-        for i in data:
-            if data[i]['name'] in ['fish_head', 'fish_tail']:
-                if data[i]['steplap_type'] == 2:
-                    self._ptype = 5
-                    break
+        # for i in data:
+        #     if data[i]['name'] in ['fish_head', 'fish_tail']:
+        #         if data[i]['steplap_type'] == 2:
+        #             self._ptype = 5
+        #             break
                 
         for i in data:
             if data[i]['steplap_count'] > 1:

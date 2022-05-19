@@ -49,7 +49,7 @@ class UpdateParamScreen:
         
         content['e_v_to_fm45'] = Entry(content['main_frame'])
         content['l_v_to_fm45'] = Label(content['main_frame'], 
-                                       text='V to FM45 distance')
+                                       text='V to FullCut distance')
         
         content['e_fm45_offset'] = Entry(content['main_frame'])
         content['l_fm45_offset'] = Label(content['main_frame'], 
@@ -67,6 +67,10 @@ class UpdateParamScreen:
         content['l_h_offset'] = Label(content['main_frame'], 
                                       text='Hole Offset')
         
+        content['e_v_lat_offset'] = Entry(content['main_frame'])
+        content['l_v_lat_offset'] = Label(content['main_frame'], 
+                                          text='V Lateral Offset')
+        
         content['e_v_to_hole'].grid(row=1, column=1)
         content['l_v_to_hole'].grid(row=1, column=0)
         
@@ -82,6 +86,8 @@ class UpdateParamScreen:
         content['e_f0_offset'].grid(row=5, column=1)
         content['l_f0_offset'].grid(row=5, column=0)
         
+        content['e_v_lat_offset'].grid(row=6, column=1)
+        content['l_v_lat_offset'].grid(row=6, column=0)
         
         content['reset'].grid(row=0, column=0)
         content['update'].grid(row=0, column=1)

@@ -157,7 +157,7 @@ class SpearV:
             exe.append(['fp45', (k-2*(i//m))*d + ((l+mult*(n-1)*d)*(i+1))])
             exe.append(['v', i*(self.fish_len + mult * (self.steplap_count - 1) * self.steplap_distance)])
         self.exe = exe
-        self.pattern_length = n * ( l + mult * ( n - 1 ) * d ) * m
+        self.pattern_length = round(n * ( l + mult * ( n - 1 ) * d ) * m, 5)
     
     
         
@@ -169,11 +169,16 @@ class SpearV:
                 i[1] += Config.DISTANCE_SHEAR_VNOTCH + Config.OFFSET_FM45
             elif i[0] == 'h':
                 i[1] += Config.DISTANCE_HOLE_VNOTCH
+            i[1] = round(i[1], 5)
         terminate = 500
         feed = []
         vaxis = []
         operation = []
         tool_number = []
+        
+        for i in self.exe:
+            print(i[0], ' - ', i[1])
+        print('pattern length - ', self.pattern_length)
         
         while terminate > 0:
             terminate -= 1
@@ -196,6 +201,7 @@ class SpearV:
                     repeat = True
                 else:
                     i[1] -= close
+                    i[1] = round(i[1], 5)
                     
            
         start_index = 0
@@ -289,27 +295,27 @@ class SpearH:
         n = self.steplap_count
         dn = self.steplap_vector
         #m = self.layers
-        m = 1
+        m = self._layers
         hl = self.hole_list
         x = self.scrap_length
         l = sum(self.len_list)
         exe = []
         vtv = 0
-        for i in range(n):
+        for i in range(n * m):
 
-            vtv = sum(2*dn[:i]) + i * (l + 2*x)
+            vtv = sum(2*dn[:(i//m)]) + (i//m) * (l + 2*x)
             vtv = round(vtv, 5)
 
             if len(hl) > 0:
                 for j in hl:
                     exe.append(['h', 
-                                round(vtv + j + x + dn[i], 5), 0])
+                                round(vtv + j + x + dn[(i//m)], 5), 0])
             exe.append(['v', vtv, x])
-            exe.append(['fp45', vtv - x, 0])
-            exe.append(['fm45', vtv + x, 0])
+            exe.append(['fp45', round(vtv - x, 5), 0])
+            exe.append(['fm45', round(vtv + x, 5), 0])
 
         self.exe = exe
-        self.pl = ( l + 2 * x ) * m * n
+        self.pl = round(( l + 2 * x ) * m * n, 5)
         
         
     def execute(self):
@@ -325,6 +331,8 @@ class SpearH:
                 i[1] += Config.DISTANCE_HOLE_VNOTCH
             elif i[0] == 0:
                 i[1] += 0
+                
+            i[1] = round(i[1], 5)
 
         term = 200
 

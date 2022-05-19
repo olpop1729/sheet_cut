@@ -13,7 +13,7 @@ class Labels:
         pass
     
     steplap_type_map = {'No step-lap':0, 'Horizontal (Longitudinal)':1,
-                        'Vertical (Lateral)':2}
+                        'Vertical (Lateral)':2, 'Skewed (Lateral)':3}
     attr_map = {''}
     open_code_map = {'NA':0, 'Open':1, 'Closed':2, 'Front Open, Rear Open':3,
                      'Front Open, Rear Closed':4, 'Front Closed, Rear Open':5,
