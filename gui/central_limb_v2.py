@@ -70,7 +70,8 @@ class TooList_CL:
                    len_list = self._length_list, 
                    steplap_count = steplap_count, 
                    open_code = open_code, 
-                   file_name = self._fn
+                   file_name = self._fn, 
+                   layers = self._layers
                    )
             
         # symmetric fish
@@ -204,12 +205,12 @@ class SpearV:
                     i[1] = round(i[1], 5)
                     
            
-        start_index = 0
-        end_index = 0
         for i in range(len(operation)):
             if operation[i][0] == 'f':
                 start_index = i
                 break
+        start_index += 2
+        end_index = start_index + len(self.exe) - 1
                     
         sec_feed = []
         number_of_steps = []
@@ -260,6 +261,7 @@ class SpearH:
         self.steplap_count = kwargs['steplap_count']
         self.open = kwargs['open_code']
         self._fn = kwargs['file_name']
+        self._layers = kwargs['layers']
         
         self.gen_hole_list()
         self.gen_steplap_vector()
