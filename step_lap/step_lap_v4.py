@@ -5,14 +5,20 @@ Created on Tue Apr  6 15:13:34 2021
 
 @author: omkar
 """
+import sys
+sys.path.insert(1, '../gui/')
+
+
 import json
 import sys
 from circuit import eTool
 from pandas_writer import PandasWriterReader
 from config import Config
-import math
+
 #  Tools definition section
 
+global conf
+conf = Config()
 
 
 #user input tool list
@@ -315,16 +321,16 @@ class ToolList:
         
         for i in inner:
             if i.name == 'fm45':
-                i.long += Config.DISTANCE_SHEAR_VNOTCH + Config.OFFSET_FM45
+                i.long += conf.DISTANCE_SHEAR_VNOTCH + conf.OFFSET_FM45
                 
             elif i.name == 'fp45':
-                i.long += Config.DISTANCE_SHEAR_VNOTCH + Config.OFFSET_FP45
+                i.long += conf.DISTANCE_SHEAR_VNOTCH + conf.OFFSET_FP45
                 
             elif i.name == 'f0':
-                i.long += Config.DISTANCE_SHEAR_VNOTCH + Config.OFFSET_F0
+                i.long += conf.DISTANCE_SHEAR_VNOTCH + conf.OFFSET_F0
                 
             elif i.name == 'h':
-                i.long += Config.DISTANCE_HOLE_VNOTCH
+                i.long += conf.DISTANCE_HOLE_VNOTCH
                 
             i.long = round(i.long, 5)
                 
@@ -397,7 +403,7 @@ class ToolList:
         modulo = len(self._tool_list) - 1
         
         for i in range(len(self._nl)):
-            dtt = pos + Config.TOOL_DISTANCE_MAP[self._tool_list[i % modulo].name]
+            dtt = pos + conf.TOOL_DISTANCE_MAP[self._tool_list[i % modulo].name]
             inner.append([self._tool_list[i % modulo].name, dtt, self._nl[i][1]])
             pos += self._nl[i][0]
         self._pl = pos
@@ -454,7 +460,7 @@ class ToolList:
                     if i.name == 'v':
                         v_axis.append(i.lat)
                     operation.append(i.name)
-                    tool_number.append(Config.TOOL_NAME_MAP[i.name][-1])
+                    tool_number.append(conf.TOOL_NAME_MAP[i.name][-1])
                 else:
                     i.long -= closest_cut
                     i.long = round(i.long, 5)
@@ -590,7 +596,7 @@ class Tool:
     
                 
 if __name__ == '__main__':
-    tl = ToolList(from_json = 'trial.json')
+    #tl = ToolList(from_json = 'trial.json')
+    b = Config()    
     
-        
     
