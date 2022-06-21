@@ -28,3 +28,48 @@ class Labels:
                        'fish_head', 'fish_tail','prrp45',
                        'pfrm45', 'prrf0', 'pfrf0', 'prlm45', 'prlf0',
                        'pflp4', 'pflf0')
+    
+    color_cyan = 'cyan'
+    color_black = 'black'
+    color_grey = 'grey'
+    color_green = 'green'
+    color_red = 'red'
+    
+    name = 'name'
+    pos = 'pos'
+    is_front = 'is_front'
+    is_rear = 'is_rear'
+    end = 'end'
+    linestyles = 'linestyles'
+    from_json = 'from_json'
+    from_db = 'from_db'
+    main_frame = 'main_frame'
+    reset = 'reset'
+    update = 'update'
+    Reset = 'Reset'
+    Update = 'update'
+    data = 'data'
+    steplap_count = 'steplap_count'
+    open_code = 'open_code'
+    steplap_distance = 'steplap_distance'
+    
+    
+    msgbox_showwarning = 'showwarning'
+    msgbox_showinfo = 'showinfo'
+    
+    warnmsg_empty_object = 'Cannot display empty object.'
+    infomsg_run_sy_profile = 'You are running a split-yoke profile.'
+    infomsg_run_cl_profile = 'You are running a central-limb profile.'
+    infomsg_run_sly_profile = 'You are running a sidelimb-yoke profile.'
+    infomsg_build_successful = 'Profile build successful.'
+    
+    path_gui = '../gui/'
+    path_program_input = '../cut_program_input/'
+    
+    title_param_update = 'Parameter Update Screen'
+    
+    
+    
+    
+    
+    

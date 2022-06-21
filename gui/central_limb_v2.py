@@ -9,9 +9,12 @@ Created on Wed Mar 30 17:10:07 2022
 import json
 from pandas_writer import PandasWriterReader
 from config import Config
+from label_file import Labels
 
 #this is temporary, will be removed when parameters are loaded
 
+global conf
+conf = Config()
 
 class TooList_CL:
     
@@ -21,13 +24,13 @@ class TooList_CL:
         
         #initialze tool with json file
         # not yet complete
-        if 'from_json' in kwargs:
-            data = self._fromJson(kwargs['from_json'])
+        if Labels.from_json in kwargs:
+            data = self._fromJson(kwargs[Labels.from_json])
             print(data)
             
             
         #initalize tool from a db like object
-        elif 'from_db' in kwargs:
+        elif Labels.from_db in kwargs:
             print('Yet to be implemented.')
             
          
@@ -74,7 +77,8 @@ class TooList_CL:
                    layers = self._layers
                    )
             
-        # symmetric fish
+        # symmetric fishand asymmetric fish types
+        # fish shapes are most formula centric
         elif self._ptype in [4, 5]:
             a = SpearV(steplap_distance = self._steplap_distances[0],
                        len_list = self._length_list, 
@@ -92,7 +96,7 @@ class TooList_CL:
     #get the data dictionary from the json file
     def _fromJson(self, name):
         data = {}
-        path = '../cut_program_input/' + name
+        path = Labels.path_program_input + name
         try:
             with open(path, 'r') as fp:
                 data = json.load(fp)
@@ -127,6 +131,7 @@ class SpearV:
                 pos = pos + self.length_list[i]
                 ret.append(pos)
         self.hole = ret
+
         
         if self.ptype == 4:
             self.k = self.steplap_count // 2
@@ -165,11 +170,11 @@ class SpearV:
     def execute(self):
         for i in self.exe:
             if i[0] == 'fp45':
-                i[1] += Config.DISTANCE_SHEAR_VNOTCH + Config.OFFSET_FP45
+                i[1] += conf.DISTANCE_SHEAR_VNOTCH + conf.OFFSET_FP45
             elif i[0] == 'fm45':
-                i[1] += Config.DISTANCE_SHEAR_VNOTCH + Config.OFFSET_FM45
+                i[1] += conf.DISTANCE_SHEAR_VNOTCH + conf.OFFSET_FM45
             elif i[0] == 'h':
-                i[1] += Config.DISTANCE_HOLE_VNOTCH
+                i[1] += conf.DISTANCE_HOLE_VNOTCH
             i[1] = round(i[1], 5)
         terminate = 500
         feed = []
@@ -177,8 +182,9 @@ class SpearV:
         operation = []
         tool_number = []
         
-        for i in self.exe:
-            print(i[0], ' - ', i[1])
+        for i in sorted(self.exe, key = lambda x: x[1]):
+
+            print(i[0], '--', i[1])
         print('pattern length - ', self.pattern_length)
         
         while terminate > 0:
@@ -197,7 +203,7 @@ class SpearV:
                     else:
                         feed.append(close)
                     operation.append(i[0])
-                    tool_number.append(Config.TOOL_NAME_MAP[i[0]][-1])
+                    tool_number.append(conf.TOOL_NAME_MAP[i[0]][-1])
                     i[1] = self.pattern_length
                     repeat = True
                 else:
@@ -305,18 +311,21 @@ class SpearH:
         vtv = 0
         for i in range(n * m):
 
-            vtv = sum(2*dn[:(i//m)]) + (i//m) * (l + 2*x)
+            vtv = sum(2*dn[:i]) + i * (l + 2*x)
             vtv = round(vtv, 5)
 
             if len(hl) > 0:
                 for j in hl:
                     exe.append(['h', 
-                                round(vtv + j + x + dn[(i//m)], 5), 0])
+                                round(vtv + j + x + dn[i], 5), 0])
             exe.append(['v', vtv, x])
             exe.append(['fp45', round(vtv - x, 5), 0])
             exe.append(['fm45', round(vtv + x, 5), 0])
 
         self.exe = exe
+        for i in sorted(exe, key = lambda x: x[1]):
+
+            print(i[0], '--', i[1])
         self.pl = round(( l + 2 * x ) * m * n, 5)
         
         
@@ -326,11 +335,11 @@ class SpearH:
 
         for i in exe:
             if i[0] in ['fm45']:
-                i[1] += Config.DISTANCE_SHEAR_VNOTCH + Config.OFFSET_FM45
+                i[1] += conf.DISTANCE_SHEAR_VNOTCH + conf.OFFSET_FM45
             elif i[0] in ['fp45']:
-                i[1] += Config.DISTANCE_SHEAR_VNOTCH + Config.OFFSET_FP45
+                i[1] += conf.DISTANCE_SHEAR_VNOTCH + conf.OFFSET_FP45
             elif i[0] == 'h':
-                i[1] += Config.DISTANCE_HOLE_VNOTCH
+                i[1] += conf.DISTANCE_HOLE_VNOTCH
             elif i[0] == 0:
                 i[1] += 0
                 
@@ -351,7 +360,7 @@ class SpearH:
                 if i[1] == cc:
                     vaxis.append(i[2])
                     operation.append(i[0])
-                    tool_number.append(Config.TOOL_NAME_MAP[i[0]][-1])
+                    tool_number.append(conf.TOOL_NAME_MAP[i[0]][-1])
                     if repeat:
                         feed.append(0)
                     else:

@@ -13,23 +13,6 @@ from update_param import UpdateParamScreen
 from create_cut_program import CreateCutProgramScreen
 import sys
 
-class labels:
-    steplap_type_map = {'No step-lap':0, 'Horizontal (Longitudinal)':1,
-                        'Vertical (Lateral)':2, 'Skewed (Lateral)':3}
-    attr_map = {''}
-    open_code_map = {'NA':0, 'Open':1, 'Closed':2, 'Front Open, Rear Open':3,
-                     'Front Open, Rear Closed':4, 'Front Closed, Rear Open':5,
-                     'Front Closed, Rear Closed':6, 'Front Open':7, 'Front Closed':8,
-                     'Rear Open':9, 'Rear Closed':10}
-
-    create_frame_cols  =['PNR', 'Tool name', 'Step-lap type','Step-lap count',
-                            'Open-Close config']
-
-    tool_name_tuple = ('fm45', 'fp45', 'f0', 'v', 'h', 's', 'y', 'prrp45',
-                       'pfrm45', 'prrf0', 'pfrf0', 'prlm45', 'prlf0',
-                       'pflp4', 'pflf0')
-
-
 
 class MainWindow:
 
