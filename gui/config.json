@@ -1,0 +1,11 @@
+{
+    "OFFSET_FM45": 0.865,
+    "OFFSET_V_LAT": 0.5,
+    "DISTANCE_HOLE_VNOTCH": 1250.0,
+    "DISTANCE_SHEAR_VNOTCH": 4334.5,
+    "CUT_PROGRAM_OUTPUT_DIRECTORY": "sheet_count/cut_program_output/",
+    "COIL_START_POSITION": 0.0,
+    "COIL_LENGTH": 400000.0,
+    "OFFSET_FP45": 0.75,
+    "OFFSET_F0": 0.0
+}
