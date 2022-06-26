@@ -40,7 +40,7 @@ class Labels:
     is_front = 'is_front'
     is_rear = 'is_rear'
     end = 'end'
-    linestyles = 'linestyles'
+    linestyle = 'linestyle'
     from_json = 'from_json'
     from_db = 'from_db'
     main_frame = 'main_frame'

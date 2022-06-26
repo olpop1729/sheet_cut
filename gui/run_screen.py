@@ -11,6 +11,7 @@ from tkinter import ttk
 from os import listdir
 from display_screen import DisplayWindow
 from central_limb_v2 import TooList_CL
+from label_file import Labels
 import json, re, sys
 sys.path.insert(1, '../step_lap/')
 from step_lap_v4 import ToolList
@@ -90,7 +91,7 @@ class RunScreen:
         content['display_btn'].grid(row=0, column=0)
         
         content['get_lens'] = Button(content['btn_frame'], text='Get Lengths', 
-                                     command=self._get_params)
+                                     command=self._get_lengths)
         content['get_lens'].grid(row=0, column=1)
         
         
@@ -120,6 +121,8 @@ class RunScreen:
     #get all the parameters from the input screen then pass on to the executing
     #object
     def _execute_prog(self):
+        
+        save_obj = {}
             
         
         content = self.content
@@ -131,6 +134,7 @@ class RunScreen:
                 slp_dlist.append(0)
             else:
                 slp_dlist.append(float(d))
+        save_obj['slp_dlist'] = slp_dlist
                 
         l_list = []
         #get the lengths from the input screen
@@ -140,16 +144,18 @@ class RunScreen:
                 l_list.append(0)
             else:
                 l_list.append(float(l))
+        save_obj['l_list'] = l_list
                 
-                
-        #get the scrap lenght if necessary
+        save_obj['_ptype'] = self._ptype
+        #get the scrap length if necessary
         scrap_length = 0
         if self._ptype == 3:
             scrap_length = int(self.content['scrap_entry'].get())
             
             if scrap_length < 0:
-                messagebox.showwarning("showwarning", "Scrap length cannot be 0.")
+                messagebox.showwarning(Labels.msgbox_showwarning, "Scrap length cannot be 0.")
                 return
+        save_obj['scrap_length'] = scrap_length
         
         
         file_name = self.content['output_entry'].get()
@@ -163,12 +169,23 @@ class RunScreen:
         
         if s_no <= 0:
             messagebox.showwarning("showwarning", "Initial sheet count starts at 1.")
-            return 
+            return
+        save_obj['s_no'] = s_no
             
         layers = int(self.content['layer_input'].get())
         if layers == 0:
             messagebox.showwarning("showwarning", "Layer count cannot be 0 (Supports only one layer in this update).")
             return
+        save_obj['layers'] = layers
+        
+        
+        #saving lengths/slp/layer info
+        try:
+            fn = self.content['search_entry'].e.get()
+            with open('../data/'+fn, 'w') as fp:
+                fp.write(json.dumps(save_obj, indent=4))
+        except Exception as err:
+            print(err)
         
             
         if self._ptype in [3, 4, 5]:
@@ -207,6 +224,44 @@ class RunScreen:
     # run split yoke profile
     def _run_syprofile(self):
         pass
+    
+    #get pre-existing values from the db
+    def _get_lengths(self):
+        path = '../data/'
+        file_name = path + self.content['search_entry'].e.get()
+        
+        try:
+            with open(file_name, 'r') as fp:
+                data = json.load(fp)
+                l_list = data['l_list']
+                for i in range(len(l_list)):#self.content['li_entries']
+                    self.content['li_entries'][i].delete(0, END)
+                    self.content['li_entries'][i].insert(END, l_list[i])
+                    
+                slp_dlist = data['slp_dlist']
+                if slp_dlist:
+                    for i in range(len(slp_dlist)):
+                        self.content['steplap_ds'][i].delete(0, END)
+                        self.content['steplap_ds'][i].insert(END, slp_dlist[i])
+                
+                layers = data['layers']
+                self.content['layer_input'].delete(0, END)
+                self.content['layer_input'].insert(END, layers)
+                
+                s_no = data['s_no']
+                self.content['start_sheet'].delete(0, END)
+                self.content['start_sheet'].insert(END, s_no)
+                
+                if data['_ptype'] == 3:
+                    scrap_length = data['scrap_length']
+                    self.content['scrap_entry'].delete(0, END)
+                    self.content['scrap_entry'].insert(END, scrap_length)
+                
+                
+                
+        except FileNotFoundError as err:
+            print(err)
+    
         
         
     #initialize the input parameter fields

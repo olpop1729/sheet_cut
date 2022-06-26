@@ -9,6 +9,7 @@ Created on Sat May  1 23:15:04 2021
 import matplotlib.pyplot as plt
 import numpy as np
 from tkinter import messagebox
+from label_file import Labels
 
 
 class labels:
@@ -64,38 +65,38 @@ class DisplayWindow:
             position = mult * 3 + 2
             
             
-            if data[i]['name'] == 'fp45':
+            if data[i][Labels.name] == 'fp45':
                 self._plotFp45(pos=position, linestyle=None)
                 
-            elif data[i]['name'] == 'fm45':
+            elif data[i][Labels.name] == 'fm45':
                 self._plotFm45(pos=position, linestyle=None)
                 
-            elif data[i]['name'] == 'h':
+            elif data[i][Labels.name] == 'h':
                 self._plotH(pos=position, ax=self.ax)
                 
-            elif data[i]['name'] == 'v':
+            elif data[i][Labels.name] == 'v':
                 self._plotV(pos=position)
                 
-            elif data[i]['name'] == 'f0':
+            elif data[i][Labels.name] == 'f0':
                 self._plotF0(pos=position, linestyle=None)
                 
-            elif data[i]['name'] == 's':
+            elif data[i][Labels.name] == 's':
                 self._plotSpear(pos=position, is_front=is_front, 
                                 linestyle=None)
                 is_front = not is_front
                 
-            elif data[i]['name'] == 'fish_head':
+            elif data[i][Labels.name] == 'fish_head':
                 self._plotFishHead(pos=position, is_front=is_front, 
                                    open_code=data[i]['open_code'])
                 is_front = not is_front
                 
-            elif data[i]['name'] == 'fish_tail':
+            elif data[i][Labels.name] == 'fish_tail':
                 self._plotFishTail(pos=position, is_front=is_front, 
                                    open_code=data[i]['open_code'])
                 is_front = not is_front
                 
                 
-            elif data[i]['name'] == 'ys':
+            elif data[i][Labels.name] == 'ys':
                 self._plotSplitYoke(pos=position)
             
                 
@@ -108,8 +109,8 @@ class DisplayWindow:
         mid = [0] * (position + 3)
 
         x = [i for i in range(position + 3)]
-        plt.plot(x, top , color = 'black')
-        plt.plot( x, bot, color = 'black')
+        plt.plot(x, top , color = Labels.color_black)
+        plt.plot( x, bot, color = Labels.color_black)
         plt.plot(x, mid , 'b-.', linewidth=1)
         
         plt.annotate('', xy=(position + 5, 0), xytext=(position + 3, 0), 
@@ -124,60 +125,60 @@ class DisplayWindow:
         #logic for the plotting goes here inside this function
         pos = kwargs['pos']
         y = np.linspace(-1, 1, 10)
-        if kwargs['linestyle']:
-            plt.plot(y+pos, y, color='grey', linestyle=kwargs['linestyle'])
+        if kwargs[Labels.linestyle]:
+            plt.plot(y+pos, y, color=Labels.color_grey, linestyle=kwargs[Labels.linstyle])
         else:
             if pos - int(pos) == 0:
-                plt.plot(y+pos, y, color='black')
+                plt.plot(y+pos, y, color=Labels.color_black)
             else:
-                plt.plot(y+pos, y, color='grey')
+                plt.plot(y+pos, y, color=Labels.color_grey)
              
     
     def _plotFp45(self, **kwargs):
         
         y = np.linspace(-1, 1, 10)
-        if kwargs['linestyle']:
-            plt.plot(-y+kwargs['pos'], y, color='grey', linestyle=kwargs['linestyle'])
+        if kwargs[Labels.linestyle]:
+            plt.plot(-y+kwargs[Labels.pos], y, color=Labels.color_grey, linestyle=kwargs[Labels.linestyle])
         else:
-            if kwargs['pos'] - int(kwargs['pos']) == 0:
-                plt.plot(-y+kwargs['pos'], y, color='black')
+            if kwargs[Labels.pos] - int(kwargs[Labels.pos]) == 0:
+                plt.plot(-y+kwargs[Labels.pos], y, color=Labels.color_black)
             else:
-                plt.plot(-y+kwargs['pos'], y, color='grey')
+                plt.plot(-y+kwargs[Labels.pos], y, color=Labels.color_grey)
                 
         
 
     
     def _plotH(self, **kwargs):
-        pos = kwargs['pos']
-        kwargs['ax'].add_patch(plt.Circle((pos,0), 0.2,color='green', fill=False))
+        pos = kwargs[Labels.pos]
+        kwargs['ax'].add_patch(plt.Circle((pos,0), 0.2,color=Labels.color_green, fill=False))
     
     def _plotV(self, **kwargs):
-        pos = kwargs['pos']
+        pos = kwargs[Labels.pos]
         
         y = np.linspace(0,1, 5)
 
-        plt.plot(-y+pos, y, color = 'red', linewidth=1)
-        plt.plot(y+pos, y, color = 'red', linewidth=1)
+        plt.plot(-y+pos, y, color = Labels.color_red, linewidth=1)
+        plt.plot(y+pos, y, color = Labels.color_red, linewidth=1)
         
     def _plotSplitYoke(self, **kwargs):
-        pos = kwargs['pos']
+        pos = kwargs[Labels.pos]
         y1 = np.linspace(-1, 1, 10)
         y2 = np.linspace(0, 1, 5)
-        plt.plot(pos+y2, y2, color='black')
-        plt.plot(pos-y1, y1, color='black')
+        plt.plot(pos+y2, y2, color=Labels.color_black)
+        plt.plot(pos-y1, y1, color=Labels.color_black)
     
     def _plotF0(self, **kwargs):
-        linestyle = kwargs['linestyle']
-        pos = kwargs['pos']
+        linestyle = kwargs[Labels.linestyle]
+        pos = kwargs[Labels.pos]
         
         y = np.linspace(-1, 1, 10)
         if linestyle:
-            plt.plot([pos]*10, y, color='cyan', linestyle=linestyle)
+            plt.plot([pos]*10, y, color=Labels.cyan, linestyle=linestyle)
         else:
             if pos - int(pos) == 0:
-                plt.plot([pos]*10, y, color='black')
+                plt.plot([pos]*10, y, color=Labels.color_black)
             else:
-                plt.plot([pos]*10, y, color='cyan')
+                plt.plot([pos]*10, y, color=Labels.color_cyan)
                 
     def _plotSpear(self, **kwargs):
         pos = kwargs['pos']
