@@ -12,7 +12,10 @@ from run_screen import RunScreen
 from update_param import UpdateParamScreen
 from create_cut_program import CreateCutProgramScreen
 import sys
+import os
 
+PATH = '/Users/omkar/Omkar/Trash/cut_program/sheet_cut/gui'
+os.chdir(PATH)
 
 class MainWindow:
 
