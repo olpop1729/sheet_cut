@@ -99,10 +99,11 @@ class JobProfile():
             elif i[0] == 'h':
                 i[1] += 1250.125
             i[1] = round(i[1], 5)
-        if self.step_lap_count % 2 == 0:
+        if (self.step_lap_count % 2) == 0:
             for i in self.exe:
-                i[1] += self.step_lap_distance*(0.5)
-            i[1] = round(i[1], 5)
+                if i[0] != 'v':
+                    i[1] += self.step_lap_distance*(0.5)
+                i[1] = round(i[1], 5)
         terminate = 500
         feed = []
         vaxis = []
@@ -141,10 +142,13 @@ def main():
     jp.getLengthList()
     jp.getLayers()
     jp.createDict()
+
     for i in sorted(jp.exe, key = lambda x: x[1]):
 
         print(i[0], '--', i[1])
+
     jp.execute()
+
 
 
 
