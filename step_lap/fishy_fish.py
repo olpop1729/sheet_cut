@@ -100,9 +100,10 @@ class JobProfile():
                 i[1] += 1250.125
             i[1] = round(i[1], 5)
         if (self.step_lap_count % 2) == 0:
+            push_up = self.step_lap_distance*(0.5)
             for i in self.exe:
                 if i[0] != 'v':
-                    i[1] += self.step_lap_distance*(0.5)
+                    i[1] += push_up
                 i[1] = round(i[1], 5)
         terminate = 500
         feed = []
@@ -128,6 +129,8 @@ class JobProfile():
                     repeat = True
                 else:
                     i[1] -= close
+                    i[1] = round(i[1], 5)
+
         cut_feed = list(zip(feed, vaxis,operation))
         df = pd.DataFrame(data = cut_feed, columns=['Feed','V-Axis','Operation'])
         df.index += 1
