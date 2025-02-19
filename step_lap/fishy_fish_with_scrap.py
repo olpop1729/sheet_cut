@@ -101,7 +101,7 @@ class JobProfile():
                 # exe.append(['fm45', i*self.fish_len + (3+(i//m))*self.k*self.step_lap_distance])
                 # exe.append(['fp45',((i//m) + 1)*self.fish_len + (3+(i//m))*self.k*self.step_lap_distance])
                 exe.append(['fm45', (3*k-2*(i//m))*d + x + (2*x+l+mult*(n-1)*d)*i])
-                exe.append(['fp45', (k-2*(i//m))*d + x + ((2*x+l+mult*(n-1)*d)*(i+1))])
+                exe.append(['fp45', (k-2*(i//m))*d - x + ((2*x+l+mult*(n-1)*d)*(i+1))])
                 exe.append(['v', i*(2*x + self.fish_len + mult * (self.step_lap_count - 1) * self.step_lap_distance)])
             self.exe = exe
             self.pattern_length = n * ( 2*x + l + mult * ( n - 1 ) * d ) * m
