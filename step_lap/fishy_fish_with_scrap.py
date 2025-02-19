@@ -130,9 +130,9 @@ class JobProfile():
                 if i[1] == close:
                     if i[0] == 'v':
                         if self.step_lap_count % 2 == 0:
-                            vaxis.append((self.k-0.5) * self.step_lap_distance)
+                            vaxis.append((self.k-0.5) * self.step_lap_distance + self.scrap)
                         else:
-                            vaxis.append(self.k * self.step_lap_distance)
+                            vaxis.append(self.k * self.step_lap_distance + self.scrap)
                     else:
                         vaxis.append(0)
                     if repeat:
