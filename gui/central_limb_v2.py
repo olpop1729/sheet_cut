@@ -64,11 +64,17 @@ class TooList_CL:
     def _ptype_decider(self):
         steplap_count = self.data['0']['steplap_count']
         open_code = self.data['0']['open_code']
+
+        # Determine steplap distance, defaulting to 0.0 if not provided
+        # This handles cases where no tool has steplap_count > 1
+        steplap_distance_to_pass = 0.0
+        if self._steplap_distances: # Check if the list is not empty
+            steplap_distance_to_pass = self._steplap_distances[0]
         
         # todo add a kwarg for layers
         # spear horizontal steplap
         if self._ptype == 3:
-            SpearH(steplap_distance = self._steplap_distances[0], 
+            SpearH(steplap_distance = steplap_distance_to_pass,
                    scrap_length = self._scrap_length, 
                    len_list = self._length_list, 
                    steplap_count = steplap_count, 
@@ -80,7 +86,7 @@ class TooList_CL:
         # symmetric fishand asymmetric fish types
         # fish shapes are most formula centric
         elif self._ptype in [4, 5]:
-            a = SpearV(steplap_distance = self._steplap_distances[0],
+            a = SpearV(steplap_distance = steplap_distance_to_pass,
                        len_list = self._length_list, 
                        steplap_count = steplap_count, 
                        file_name = self._fn, 

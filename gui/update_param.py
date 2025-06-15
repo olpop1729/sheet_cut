@@ -6,7 +6,7 @@ Created on Thu Jul  8 19:26:43 2021
 @author: omkar
 """
 
-from tkinter import Tk, Button, Entry, END, Label, messagebox
+from tkinter import Tk, Button, Entry, END, Label, Toplevel, messagebox
 from tkinter import ttk
 import json
 from config import Config
@@ -16,20 +16,20 @@ from label_file import Labels
 class UpdateParamScreen:
     Config = Config()
     
-    def __init__(self):
-        
+    def __init__(self, parent_tk):
+        self.parent_tk = parent_tk
+        self.toplevel = Toplevel(parent_tk)
         #load existing presets first.
         #self.load_params()
         #self.show_params()
         
-        self._tk = Tk()
-        
-        self._init_screen(self._tk)
+        self._init_screen(self.toplevel)
+        self.toplevel.protocol("WM_DELETE_WINDOW", self.toplevel.destroy) # Ensure Toplevel is destroyed on close
         #if none exist create new (to be added later)
         
         
     def _init_screen(self, parent):
-        parent.geometry('900x400')
+        self.toplevel.geometry('900x400') # Operate on self.toplevel
         
         content = {}
         
@@ -173,9 +173,9 @@ class UpdateParamScreen:
         with open( path , 'w') as fp:
             fp.write(json.dumps(conf, indent=4))
         #print('write successfull')
-        messagebox.showinfo("showinfo", " Parameters updated")
+        messagebox.showinfo("showinfo", " Parameters updated", parent=self.toplevel)
             
-        self._tk.destroy()
+        self.toplevel.destroy()
         
    
     def load_params(self):

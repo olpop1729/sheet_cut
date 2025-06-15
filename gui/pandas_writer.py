@@ -25,7 +25,7 @@ class PandasWriterReader:
                     kwargs['m45_overcut'], kwargs['yoke_len'],
                     kwargs['leg_len'], kwargs['cl_len']))
         df = pd.DataFrame(data = cut_feed, columns=Config.EXCEL_COLUMN_NAMES)
-        df.index += 1
-        temp = pd.ExcelWriter('../cut_program_output/' + fname + '.xlsx')
-        df.to_excel(temp)
-        temp.save()
+        df.index += 1 # Pandas DataFrame index starts at 0, so this makes it 1-based for Excel.
+        output_path = '../cut_program_output/' + fname + '.xlsx'
+        with pd.ExcelWriter(output_path) as writer:
+            df.to_excel(writer)

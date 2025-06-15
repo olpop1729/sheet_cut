@@ -20,8 +20,8 @@ class Labels:
                      'Front Closed, Rear Closed':6, 'Front Open':7, 'Front Closed':8,
                      'Rear Open':9, 'Rear Closed':10}
 
-    create_frame_cols  =['PNR', 'Tool name', 'Step-lap type','Step-lap count',
-                            'Open-Close config']
+    create_frame_cols  = ['PNR', 'Tool name', 'Step-lap type','Step-lap count',
+                            'Open-Close config', 'Skewed'] # Added Skewed
     
     # gui help for this thing
     tool_name_tuple = ('fm45', 'fp45', 'f0', 'v', 'h', 's', 'ys', 
@@ -68,6 +68,7 @@ class Labels:
     
     title_param_update = 'Parameter Update Screen'
     
+    label_skewed = "Skewed"
     
     
     
