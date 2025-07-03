@@ -1,5 +1,14 @@
 .DS_Store
 cut_program_output/*
 !cut_program_output/.gitkeep
-cut_program_input/*
-!cut_program_output/.gitkeep
+cut_program_input/
+!cut_program_input/.gitkeep
+
+*__pycache__*
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+env/
