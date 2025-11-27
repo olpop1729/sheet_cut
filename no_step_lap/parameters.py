@@ -4,21 +4,30 @@
 Created on Fri Mar 12 10:39:49 2021
 
 @author: omkar
+
+Parameters module. Uses the shared Config and tool_constants modules.
 """
 
+import sys
+import os
+
+# Add parent directory to path to import shared module
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from shared.config import Offset
+from shared.tool_constants import TOOL_ALIASES
+
+# Export commonly used constants for backwards compatibility
 SHEET_LENGTH = 100000
-DISTANCE_HOLE_VNOTCH = 1250
-DISTANCE_SHEAR_VNOTCH = 4335
+DISTANCE_HOLE_VNOTCH = int(Offset.DISTANCE_HOLE_VNOTCH)
+DISTANCE_SHEAR_VNOTCH = int(Offset.DISTANCE_SHEAR_VNOTCH)
 
-
-
-TOOL_HOLE = ['hole','h',0]
-TOOL_V_NOTCH = ['v notch', 'vnotch','v',1]
-TOOL_P45 = ['full cut +45','+45','45','fp45','p45',2]
-TOOL_M45 = ['full cut -45','-45','fm45','m45',3]
-TOOL_F0 = ['full cut', '0','0 shear','shear','zero','f0',4]
-
-
+# Tool aliases for backwards compatibility
+TOOL_HOLE = TOOL_ALIASES['HOLE']
+TOOL_V_NOTCH = TOOL_ALIASES['V_NOTCH']
+TOOL_P45 = TOOL_ALIASES['P45']
+TOOL_M45 = TOOL_ALIASES['M45']
+TOOL_F0 = TOOL_ALIASES['F0']
 
 #-------------------------------------------
 # directories
