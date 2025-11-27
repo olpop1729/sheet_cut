@@ -55,7 +55,13 @@ class BaseTool:
         return self.step_lap_count > 1
     
     def lengthyfy(self):
-        """Return length modification value. Override in subclasses."""
+        """
+        Return length modification value. Override in subclasses.
+        
+        Returns:
+            For base tools: 0 (no modification)
+            For Spear: tuple of ([type, pos], [type, pos]) for v-notch and full cut operations
+        """
         return 0
     
     def getIsFront(self):

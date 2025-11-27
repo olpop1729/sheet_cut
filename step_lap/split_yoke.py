@@ -20,9 +20,9 @@ from shared.base_tools import YokeSplitter as BaseYokeSplitter, Fm45 as BaseFm45
 
 class offset:
     """Offset constants for split yoke operations. Uses shared Offset values."""
-    fp45 = Offset.F0  # 0
-    fm45 = Offset.F0  # 0
-    f0 = Offset.F0    # 0
+    fp45 = Offset.FP45
+    fm45 = Offset.FM45
+    f0 = Offset.F0
     
     hole_vnotch = Offset.DISTANCE_HOLE_VNOTCH
     fm45_vnotch = Offset.DISTANCE_SHEAR_VNOTCH
@@ -157,14 +157,7 @@ class Fp45(BaseFp45):
 
 class Hole(BaseHole):
     """Hole punch tool - extends the shared base class."""
-    
-    def loadFromDict(self, var):
-        super().loadFromDict(var)
-        if 'name' in var:
-            self.name = var['name']
-    
-    def hasStepLap(self) -> bool:
-        return False
+    pass
     
 class JobProfile:
     

@@ -44,7 +44,7 @@ class PandasWriterReader:
         'Feed Dist', 'Vnotch Trav Dist', 'After Shear feed Tip Cut',
         'Tool', 'Tool no', 'Start Index', 'End Index',
         'Job Shape', 'No of Steps', 'Sheet Count', 'P45 OverCut',
-        'M45 OverCut', 'Yoke Len', 'Leg Len', 'Cnetral Limb Len'
+        'M45 OverCut', 'Yoke Len', 'Leg Len', 'Central Limb Len'
     ]
     
     @staticmethod
