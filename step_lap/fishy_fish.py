@@ -4,28 +4,19 @@
 Created on Thu Apr  8 23:09:40 2021
 
 @author: omkar
+
+Fishy fish cutting module. Uses the shared modules for configuration and pandas utilities.
 """
 
-import pandas as pd
-from os import listdir
-from os.path import isfile, join
+import sys
+import os
 
+# Add parent directory to path to import shared module
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-class PandasModule():
-    def __init__(self):
-        self.file_name = ''
+from shared.config import Offset
+from shared.pandas_utils import PandasModule, PandasWriterReader
 
-    def checkFileName(self, name):
-        mypath = '../cut_program_putput/'
-        onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
-        if name in onlyfiles:
-            return False
-        return True
-
-class offset:
-    fp45 = -1.665
-    fm45 = 0.865
-    f0 = 0
 
 class JobProfile():
     def __init__(self):
@@ -103,13 +94,19 @@ class JobProfile():
             self.pattern_length = n * ( l + mult * ( n - 1 ) * d ) * m
 
     def execute(self):
+        # Use shared Offset values
+        offset_fp45 = Offset.FP45
+        offset_fm45 = Offset.FM45
+        distance_shear = Offset.DISTANCE_SHEAR_VNOTCH - 0.5  # 4334.5
+        distance_hole = Offset.DISTANCE_HOLE_VNOTCH + 0.125  # 1250.125
+        
         for i in self.exe:
             if i[0] == 'fp45':
-                i[1] += 4334.5 + offset.fp45
+                i[1] += distance_shear + offset_fp45
             elif i[0] == 'fm45':
-                i[1] += 4334.5 + offset.fm45
+                i[1] += distance_shear + offset_fm45
             elif i[0] == 'h':
-                i[1] += 1250.125
+                i[1] += distance_hole
             i[1] = round(i[1], 5)
 
         terminate = 200
@@ -141,12 +138,7 @@ class JobProfile():
                     i[1] -= close
                     i[1] = round(i[1], 5)
 
-        cut_feed = list(zip(feed, vaxis,operation))
-        df = pd.DataFrame(data = cut_feed, columns=['Feed','V-Axis','Operation'])
-        df.index += 1
-        temp = pd.ExcelWriter('../cut_program_output/FishyFish_0.xlsx')
-        df.to_excel(temp)
-        temp.save()
+        PandasWriterReader.writeExcelSimple('FishyFish_0', feed, vaxis, operation)
 
 
 def main():

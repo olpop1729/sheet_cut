@@ -4,87 +4,44 @@
 Created on Mon Apr 19 23:20:23 2021
 
 @author: omkar
+
+Split yoke cutting module. Uses the shared modules for configuration and tools.
 """
 import os, sys
-import pandas as pd
 import json
 
+# Add parent directory to path to import shared module
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+import pandas as pd
+from shared.config import Offset
+from shared.base_tools import YokeSplitter as BaseYokeSplitter, Fm45 as BaseFm45, Fp45 as BaseFp45, Hole as BaseHole
+
+
 class offset:
-    fp45 = 0
-    fm45 = 0
-    f0 = 0
+    """Offset constants for split yoke operations. Uses shared Offset values."""
+    fp45 = Offset.FP45
+    fm45 = Offset.FM45
+    f0 = Offset.F0
     
-    hole_vnotch = 1250
-    fm45_vnotch = 4335
-    fp45_vnotch = 4335
-    f0_vnotch = 4335
+    hole_vnotch = Offset.DISTANCE_HOLE_VNOTCH
+    fm45_vnotch = Offset.DISTANCE_SHEAR_VNOTCH
+    fp45_vnotch = Offset.DISTANCE_SHEAR_VNOTCH
+    f0_vnotch = Offset.DISTANCE_SHEAR_VNOTCH
     
     scrap = 10
 
-class YokeSplitter:
-    
-    def __init__(self, var_dict=None):
-        self.name = 'ys'
-        self.pos = 0
-        self.slp_count = 1
-        self.slp_distance = 0
-        self.slp_vector = []
-        self.slp_counter = 0
-        self.front_open = False
-        if var_dict:
-            self.loadFromDict(var_dict)
-            
-    def loadFromDict(self, var):
-        self.pos = var['pos']
-        self.slp_count = var['slp_count']
-        self.slp_distance = var['slp_distance']
-        self.slp_vector = var['slp_vector']
-        self.slp_counter = var['slp_counter']
-        self.front_open = var['front_open']
-        
-    def lengthyfy(self):
-        return 0
-    
-    def hasStepLap(self) -> bool:
-        if self.slp_count > 1:
-            return True
-        return False
-        
-    def getSlpCount(self):
-        self.slp_count = int(input('Enter step-lap count :'))
-        
-    def getSlpDistance(self):
-        self.slp_distance = float(input('Enter step-lap distance : '))
-        
-    def generateSlpVector(self):
-        n = self.slp_count
-        d = self.slp_distance
-        self.slp_vector = [i*d for i in range(n//2, -n//2,-1)]
-        if self.front_open:
-            self.slp_counter = 0
-        else:
-            self.slp_counter = n-1
-        
-    def incrementSlpCounter(self):
-        if self.front_open:
-            self.slp_counter += 1
-            self.slp_counter %= self.slp_count
-        else:
-            self.slp_counter -= 1
-            self.slp_counter %= self.slp_count
-    
-    def getFrontOpen(self):
-        if input('Front open : ').lower() in ['y',  'yes']:
-            self.front_open = True
-        else:
-            self.front_open = False
-            
 
-class Fm45:
+class YokeSplitter(BaseYokeSplitter):
+    """Yoke splitter tool - extends the shared base class."""
+    pass
+
+
+class Fm45(BaseFm45):
+    """Full cut at -45 degrees - extends the shared base class."""
     
     def __init__(self, var_dict=None):
-        self.name = 'fm45'
-        self.pos = 0
+        super().__init__(var_dict)
         self.slp_count = 1
         self.slp_distance = 0
         self.slp_vector = []
@@ -92,93 +49,35 @@ class Fm45:
         self.open = False
         if var_dict:
             self.loadFromDict(var_dict)
-            
+    
     def loadFromDict(self, var):
-        self.pos = var['pos']
-        self.slp_count = var['slp_count']
-        self.slp_distance = var['slp_distance']
-        self.slp_vector = var['slp_vector']
-        self.slp_counter = var['slp_counter']
-        self.open = var['open']
-        
-    def lengthyfy(self):
-        return 0
+        super().loadFromDict(var)
+        if 'slp_count' in var:
+            self.slp_count = var['slp_count']
+        if 'slp_distance' in var:
+            self.slp_distance = var['slp_distance']
+        if 'slp_vector' in var:
+            self.slp_vector = var['slp_vector']
+        if 'slp_counter' in var:
+            self.slp_counter = var['slp_counter']
+        if 'open' in var:
+            self.open = var['open']
     
     def hasStepLap(self) -> bool:
-        if self.slp_count > 1:
-            return True
-        return False
+        return self.slp_count > 1
     
     def getOpen(self):
         if input('Open ? : ').lower() in ['y', 'yes']:
             self.open = True
         else:
             self.open = False
-        
+    
     def getSlpCount(self):
         self.slp_count = int(input('Enter step-lap count :'))
-        
+    
     def getSlpDistance(self):
         self.slp_distance = float(input('Enter step-lap distance : '))
-        
-    def generateSlpVector(self):
-        n = self.slp_count
-        d = self.slp_distance
-        self.slp_vector = [i*d for i in range(n//2, -n//2,-1)]
-        if self.open:
-            self.slp_counter = 0
-        else:
-            self.slp_counter = n-1
     
-    def incrementSlpCounter(self):
-        if self.open:
-            self.slp_counter += 1
-            self.slp_counter %= self.slp_count
-        else:
-            self.slp_counter -= 1
-            self.slp_counter %= self.slp_count   
-                
-class Fp45:
-    
-    def __init__(self, var_dict=None):
-        self.name = 'fp45'
-        self.pos = 0
-        self.slp_count = 1
-        self.slp_distance = 0
-        self.slp_vector = []
-        self.slp_counter = 0
-        self.open = False
-        if var_dict:
-            self.loadFromDict(var_dict)
-            
-    def loadFromDict(self, var):
-        self.pos = var['pos']
-        self.slp_count = var['slp_count']
-        self.slp_distance = var['slp_distance']
-        self.slp_vector = var['slp_vector']
-        self.slp_counter = var['slp_counter']
-        self.open = var['open']
-        
-    def lengthyfy(self):
-        return 0
-    
-    def hasStepLap(self) -> bool:
-        if self.slp_count > 1:
-            return True
-        return False
-    
-    def getOpen(self):
-        if input('Open ? : ').lower() in ['y', 'yes']:
-            self.open = True
-        else:
-            self.open = False
-        
-    def getSlpCount(self):
-        self.slp_count = int(input('Enter step-lap count :'))
-        
-    def getSlpDistance(self):
-        self.slp_distance = float(input('Enter step-lap distance : '))
-        
     def generateSlpVector(self):
         n = self.slp_count
         d = self.slp_distance
@@ -195,24 +94,70 @@ class Fp45:
         else:
             self.slp_counter -= 1
             self.slp_counter %= self.slp_count
-            
-class Hole:
+
+
+class Fp45(BaseFp45):
+    """Full cut at +45 degrees - extends the shared base class."""
     
     def __init__(self, var_dict=None):
-        self.name = 'h'
-        self.pos = 0
+        super().__init__(var_dict)
+        self.slp_count = 1
+        self.slp_distance = 0
+        self.slp_vector = []
+        self.slp_counter = 0
+        self.open = False
         if var_dict:
             self.loadFromDict(var_dict)
-            
+    
     def loadFromDict(self, var):
-        self.name = var['name']
-        self.pos = var['pos']
-        
-    def lengthyfy(self):
-        return 0
+        super().loadFromDict(var)
+        if 'slp_count' in var:
+            self.slp_count = var['slp_count']
+        if 'slp_distance' in var:
+            self.slp_distance = var['slp_distance']
+        if 'slp_vector' in var:
+            self.slp_vector = var['slp_vector']
+        if 'slp_counter' in var:
+            self.slp_counter = var['slp_counter']
+        if 'open' in var:
+            self.open = var['open']
     
     def hasStepLap(self) -> bool:
-        return False
+        return self.slp_count > 1
+    
+    def getOpen(self):
+        if input('Open ? : ').lower() in ['y', 'yes']:
+            self.open = True
+        else:
+            self.open = False
+    
+    def getSlpCount(self):
+        self.slp_count = int(input('Enter step-lap count :'))
+    
+    def getSlpDistance(self):
+        self.slp_distance = float(input('Enter step-lap distance : '))
+    
+    def generateSlpVector(self):
+        n = self.slp_count
+        d = self.slp_distance
+        self.slp_vector = [i*d for i in range(n//2, -n//2,-1)]
+        if self.open:
+            self.slp_counter = 0
+        else:
+            self.slp_counter = n-1
+    
+    def incrementSlpCounter(self):
+        if self.open:
+            self.slp_counter += 1
+            self.slp_counter %= self.slp_count
+        else:
+            self.slp_counter -= 1
+            self.slp_counter %= self.slp_count
+
+
+class Hole(BaseHole):
+    """Hole punch tool - extends the shared base class."""
+    pass
     
 class JobProfile:
     

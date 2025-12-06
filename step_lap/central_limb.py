@@ -4,95 +4,43 @@
 Created on Wed Mar 31 21:55:23 2021
 
 @author: omkar
+
+Central limb cutting module. Uses the shared modules for configuration and tools.
 """
 
-import pandas as pd
 import os, sys
 import json
 
-class Config:
-    OFFSET_F0 = 0
-    OFFSET_FM45 = 0
-    OFFSET_FP45 = 0
-    DISTANCE_HOLE_VNOTCH = 1250
-    DISTANCE_SHEAR_VNOTCH = 4335
-    COIL_LENGTH = 4000000
-    CUT_PROGRAM_OUTPUT_DIRECTORY = '../cut_program_output'
-    COIL_START_POSITION = 0 # w.r.t. V_Notch.
-    OUTPUT_FILE_NAME = 'CutFeed_'
-    LIST_NO = ['no', 'n','not', '0','negative','incorrect']
-    LIST_YES = ['yes', 'y', 'affirmative', 'correct', '1']
-    TOOL_NAME_MAP = {'h':['Hole Punch', DISTANCE_HOLE_VNOTCH,0],
-                     'v':['V Notch', DISTANCE_SHEAR_VNOTCH,1],
-                     'fm45':['Full Cut -45',2],
-                     'fp45':['Full Cut +45',3],
-                     'f0':['Full Cut 0',4],
-                     'pfr':['Partial Front Right'],
-                     'pfl':['Partial Front Left'],
-                     'prr':['Partial Rear Right'],
-                     'prl':['Partial Rear Left']
-                     }
-    TOOL_DISTANCE_MAP = {'h':DISTANCE_HOLE_VNOTCH + COIL_START_POSITION,
-                         'v':COIL_START_POSITION,
-                         'fm45':DISTANCE_SHEAR_VNOTCH + COIL_START_POSITION + OFFSET_FM45,
-                         'fp45':DISTANCE_SHEAR_VNOTCH + COIL_START_POSITION + OFFSET_FP45,
-                         'f0': DISTANCE_SHEAR_VNOTCH + COIL_START_POSITION + OFFSET_F0
-                         }
+# Add parent directory to path to import shared module
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+import pandas as pd
+from shared.config import Config as SharedConfig
+from shared.base_tools import Spear as BaseSpear, Hole as BaseHole, Vnotch as BaseVnotch
 
 
-class Spear():
+class Config(SharedConfig):
+    """Configuration class extending the shared Config."""
     
-    def __init__(self, var_dict=None):
-        self.name = 's'
-        self.pos = 0
-        self.step_lap_count = 1
-        self.step_lap_counter = 0
-        self.step_lap_distance = 0
-        self.step_lap_vector = None
-        self.is_open = True
-        self.is_front = True
-        if var_dict:
-            self.loadFromDict(var_dict)
-            
-    def loadFromDict(self, var):
-        self.pos = var['pos']
-        self.step_lap_count = var['step_lap_count']
-        self.step_lap_distance = var['step_lap_distance']
-        self.step_lap_vector = var['step_lap_vector']
-        self.step_lap_counter = var['step_lap_counter']
-        self.is_open = var['is_open']
-        self.is_front = var['is_front']
-        
-    def incrementStepLapCounter(self):
-        if self.is_open:
-            self.step_lap_counter += 1
-        else:
-            self.step_lap_counter -= 1
-        self.step_lap_counter = self.step_lap_counter  % self.step_lap_count
+    # Override COIL_LENGTH for central limb operations
+    COIL_LENGTH = 4000000
+
+
+class Spear(BaseSpear):
+    """Spear tool class - extends the shared base class."""
     
     def getIsOpen(self):
         if input('Open : ').lower() in ['y','yes']:
             self.is_open = True
         else:
             self.is_open = False
-        
+    
     def getIsFront(self):
         if input('Front : ').lower() in ['y','yes']:
             self.is_front = True
         else:
             self.is_front = False
-        
-    def generateStepLapVector(self):
-        self.step_lap_vector = [i * self.step_lap_distance for i in 
-                                range(self.step_lap_count//2 ,
-                                      -self.step_lap_count//2, -1)]
-        if self.is_open:
-            self.step_lap_counter = 0
-            return
-        else:
-            self.step_lap_counter = self.step_lap_count - 1
-        return
-        
+    
     def getStepLapCount(self):
         while True:
             try:
@@ -110,31 +58,18 @@ class Spear():
                 return
             except ValueError as err:
                 print(f'Error : {err}')
-                
-class Hole():
-    
-    def __init__(self, var_dict=None):
-        self.name = 'h'
-        self.pos = 0
-        if var_dict:
-            self.loadFromDict(var_dict)
-            
-    def loadFromDict(self, var):
-        self.pos = var['pos']
-        
-class Vnotch():
-    
-    def __init__(self, var_dict=None):
-        self.name = 'v'
-        self.pos = 0
-        
-        if var_dict:
-            self.loadFromDict(var_dict)
-            
-    def loadFromDict(self, var):
-        self.pos = var['pos']
-        
-        
+
+
+class Hole(BaseHole):
+    """Hole punch tool - extends the shared base class."""
+    pass
+
+
+class Vnotch(BaseVnotch):
+    """V-notch tool - extends the shared base class."""
+    pass
+
+
 class JobProfile():
     
     def __init__(self):
