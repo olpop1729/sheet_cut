@@ -1,14 +1,31 @@
+# OS
 .DS_Store
-cut_program_output/*
-!cut_program_output/.gitkeep
-cut_program_input/
-!cut_program_input/.gitkeep
 
-*__pycache__*
-*.pyc
-*.pyo
-*.pyd
-
-# Virtual environment
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
 venv/
 env/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Generated cut programs (legacy app writes here)
+legacy/cut_program_output/*
+!legacy/cut_program_output/.gitkeep
+!legacy/cut_program_output/index.txt
+
+# Web (Phase 4b)
+node_modules/
+web/dist/
+
+# Local env
+.env
