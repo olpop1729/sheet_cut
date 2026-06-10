@@ -13,7 +13,7 @@ SPA, MCP server) per [`docs/PRODUCTION_PLAN.md`](docs/PRODUCTION_PLAN.md).
 | Phase | Scope | State |
 |---|---|---|
 | 0 | Scaffolding, freeze prototype as parity oracle | ✅ done |
-| 1 | Port algorithms into `src/sheetcut/core/` with golden-master parity tests | not started |
+| 1 | Port algorithms into `src/sheetcut/core/` with golden-master parity tests | ✅ done — 21 golden cases, cell-for-cell |
 | 2 | Services + SQLite persistence | not started |
 | 3 | HTTP API (FastAPI) | not started |
 | 4a / 4b | MCP server / React SPA | not started |
