@@ -1,5 +1,25 @@
 # sheet_cut — Production Architecture Plan
 
+> **Status (2026-06): implemented through Phase 5.** All phases below are
+> built and tested; `legacy/` remains in-tree until a production bake period
+> confirms parity in the field. Deviations from this plan, made during
+> implementation and visible in the code:
+>
+> 1. **Float mm, not integer µm.** The ports replicate the legacy arithmetic
+>    order and `round(x, 5)` placement bit-for-bit, which is what makes
+>    cell-identical golden parity provable. Switching units would have meant
+>    re-deriving every comparison the legacy float-equality logic depends on.
+>    Revisit only with the machine owner, as an explicit golden-file diff.
+> 2. **`create_all` instead of Alembic** for the initial schema; Alembic gets
+>    introduced with the first real migration (pre-1.0 SQLite makes this
+>    cheap, and the schema keeps to portable types for the Postgres path).
+> 3. **Hand-written typed TS client** (~80 lines) instead of OpenAPI codegen;
+>    the OpenAPI schema is still served, so orval/openapi-typescript can
+>    replace it without API changes. SVG plot instead of plotly.js (50 kB
+>    bundle total vs ~3.5 MB).
+> 4. **One container** (FastAPI serves the built SPA) instead of api + nginx;
+>    one fewer moving part on a factory PC.
+
 Target: turn the 2021 Tkinter prototype into a structured, tested, deployable system
 with one backend serving three client types: **web app**, **mobile (later)**, and **MCP**
 (Model Context Protocol, for AI/agent access).

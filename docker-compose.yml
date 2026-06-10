@@ -1,0 +1,22 @@
+# LAN deployment: one container serving API + SPA, one named volume for all
+# state (SQLite DB + generated .xlsx artifacts). Backup = copy the volume.
+#
+#   docker compose up -d --build
+#   open http://<machine>:8000
+#
+# Optional hardening: set SHEETCUT_API_KEY to require X-API-Key on the API.
+
+services:
+  sheetcut:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - sheetcut-data:/data
+    environment:
+      SHEETCUT_DATA_DIR: /data
+      # SHEETCUT_API_KEY: change-me
+    restart: unless-stopped
+
+volumes:
+  sheetcut-data:
