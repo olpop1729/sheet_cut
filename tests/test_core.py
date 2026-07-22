@@ -99,7 +99,32 @@ def test_generate_and_exports_work_end_to_end() -> None:
     assert grid[0][1] == "Feed Dist"
     assert len(grid) == program.row_count + 1
 
-    series = plot_series(program)
+    series = plot_series(program, MachineConfig())
     assert len(series["events"]) == len(program.feed)
     positions = [e["position"] for e in series["events"]]
     assert positions == sorted(positions)
+
+    # sheet-view geometry: cut_x = position minus the tool's distance from
+    # the v-notch; SLY v events carry no per-row traverse (legacy truncation)
+    assert series["distances"]["shear"] == 4334.5
+    for event in series["events"]:
+        if event["kind"] == "shear":
+            assert event["cut_x"] == round(event["position"] - 4334.5, 5)
+        elif event["kind"] == "hole":
+            assert event["cut_x"] == round(event["position"] - 1250.0, 5)
+        elif event["kind"] == "vnotch":
+            assert event["cut_x"] == event["position"]
+            assert event["v_travel"] is None
+    assert {e["kind"] for e in series["events"]} == {"shear", "hole", "vnotch"}
+
+
+def test_plot_series_spear_h_v_travel_is_per_row() -> None:
+    profile = _profile(
+        ToolSpec(name="s", steplap_type=1, steplap_count=3, open_code=1),
+        ToolSpec(name="h"),
+    )
+    params = RunParameters(length_list=[400.0, 300.0], steplap_distances=[2.0], scrap_length=5.0)
+    program = generate(profile, params, MachineConfig())
+    series = plot_series(program, MachineConfig())
+    v_events = [e for e in series["events"] if e["kind"] == "vnotch"]
+    assert v_events and all(e["v_travel"] == 5.0 for e in v_events)

@@ -78,6 +78,9 @@ export interface PlotEvent {
   tool_number: number | null;
   feed: number;
   position: number;
+  kind: "shear" | "hole" | "vnotch" | null;
+  cut_x: number | null;
+  v_travel: number | null;
 }
 
 export interface PlotSeries {
@@ -87,6 +90,7 @@ export interface PlotSeries {
   end_index: number | null;
   sheet_count: number | null;
   v_axis: number[];
+  distances: { shear: number; hole: number; vnotch: number };
   events: PlotEvent[];
 }
 

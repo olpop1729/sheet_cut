@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
+import { ProfileSchematic } from "../components/ProfileSchematic";
 import {
   OPEN_CODES,
   PATTERN_NAMES,
@@ -191,6 +192,9 @@ export function ProfilesPage() {
         </div>
         {error && <div className="error">{error}</div>}
         {notice && <div className="ok">{notice}</div>}
+
+        <h3>Schematic</h3>
+        <ProfileSchematic tools={tools} />
       </div>
     </>
   );

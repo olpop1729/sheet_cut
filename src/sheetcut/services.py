@@ -189,7 +189,7 @@ class GenerationService:
 
     @classmethod
     def plot(cls, row: GenerationRow) -> dict[str, object]:
-        return plot_series(cls.program(row))
+        return plot_series(cls.program(row), MachineConfig(**row.machine_config))
 
 
 def _safe_name(name: str) -> str:

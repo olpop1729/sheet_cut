@@ -92,6 +92,9 @@ def test_generate_flow(client: TestClient) -> None:
 
     plot = client.get(f"/api/v1/generations/{gid}/plot").json()
     assert len(plot["events"]) == summary["row_count"]
+    assert plot["distances"] == {"shear": 4334.5, "hole": 1250.0, "vnotch": 0.0}
+    shear = next(e for e in plot["events"] if e["kind"] == "shear")
+    assert shear["cut_x"] == round(shear["position"] - 4334.5, 5)
 
     listed = client.get("/api/v1/generations").json()
     assert listed[0]["id"] == gid

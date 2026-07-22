@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../api";
+import { ProfileSchematic } from "../components/ProfileSchematic";
 import { PATTERN_NAMES, type GenerationSummary, type Profile } from "../types";
 
 export function RunPage({ onOpenGeneration }: { onOpenGeneration: (id: number) => void }) {
@@ -80,6 +81,8 @@ export function RunPage({ onOpenGeneration }: { onOpenGeneration: (id: number) =
 
       {profile && (
         <>
+          <ProfileSchematic tools={profile.tools} />
+
           <h3>Segment lengths (mm)</h3>
           {lengths.map((v, i) => (
             <div className="row" key={i}>

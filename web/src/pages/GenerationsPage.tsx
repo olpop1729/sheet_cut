@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { api } from "../api";
 import { PlotView } from "../components/PlotView";
+import { SheetView } from "../components/SheetView";
 import {
   PATTERN_NAMES,
   type GenerationDetail,
@@ -108,7 +109,13 @@ export function GenerationsPage({
             </div>
           </div>
 
-          {plot && <PlotView series={plot} />}
+          {plot && <SheetView series={plot} />}
+          {plot && (
+            <>
+              <h3>Coil overview</h3>
+              <PlotView series={plot} />
+            </>
+          )}
 
           {steps && (
             <>
