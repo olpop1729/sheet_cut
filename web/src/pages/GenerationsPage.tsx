@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { api } from "../api";
+import { PiecesView } from "../components/PiecesView";
 import { PlotView } from "../components/PlotView";
 import { SheetView } from "../components/SheetView";
 import {
@@ -109,12 +110,14 @@ export function GenerationsPage({
             </div>
           </div>
 
-          {plot && <SheetView series={plot} />}
+          {plot && <PiecesView series={plot} />}
           {plot && (
-            <>
+            <details className="machine-view">
+              <summary>Machine view — cut positions on the coil</summary>
+              <SheetView series={plot} />
               <h3>Coil overview</h3>
               <PlotView series={plot} />
-            </>
+            </details>
           )}
 
           {steps && (

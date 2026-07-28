@@ -83,6 +83,31 @@ export interface PlotEvent {
   v_travel: number | null;
 }
 
+export interface PieceEdge {
+  tool: string;
+  x: number;
+  row: number;
+}
+
+export interface PieceHole {
+  row: number;
+  x: number;
+  offset: number;
+}
+
+export interface PieceNotch extends PieceHole {
+  travel: number | null;
+}
+
+export interface Piece {
+  index: number;
+  left: PieceEdge;
+  right: PieceEdge;
+  center_length: number;
+  holes: PieceHole[];
+  notches: PieceNotch[];
+}
+
 export interface PlotSeries {
   pattern_type: number;
   pattern_length: number | null;
@@ -92,6 +117,7 @@ export interface PlotSeries {
   v_axis: number[];
   distances: { shear: number; hole: number; vnotch: number };
   events: PlotEvent[];
+  pieces: Piece[];
 }
 
 export const PATTERN_NAMES: Record<number, string> = {

@@ -70,3 +70,9 @@ tr.clickable:hover { background: #f0f4fa; }
 .stats div span { font-size: 12px; color: #75808f; }
 .pager { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
 .toolgrid { overflow-x: auto; }
+
+details.machine-view { margin-top: 14px; border-top: 1px solid #e0e4ea; padding-top: 8px; }
+details.machine-view summary {
+  cursor: pointer; font-size: 13px; font-weight: 600; color: #445060;
+  padding: 4px 0;
+}

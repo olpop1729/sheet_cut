@@ -117,6 +117,18 @@ def test_generate_and_exports_work_end_to_end() -> None:
             assert event["v_travel"] is None
     assert {e["kind"] for e in series["events"]} == {"shear", "hole", "vnotch"}
 
+    # resulting pieces: consecutive shears bound each lamination; this yoke
+    # program has 4 shear cuts -> 3 complete pieces of one pattern each,
+    # carrying 2 holes and 1 v-notch
+    pieces = series["pieces"]
+    assert len(pieces) == 3
+    for piece in pieces:
+        assert abs(piece["center_length"] - 3200.0) < 10
+        assert len(piece["holes"]) == 2
+        assert len(piece["notches"]) == 1
+        for feature in piece["holes"] + piece["notches"]:
+            assert 0 < feature["offset"] < piece["center_length"]
+
 
 def test_plot_series_spear_h_v_travel_is_per_row() -> None:
     profile = _profile(
@@ -128,3 +140,9 @@ def test_plot_series_spear_h_v_travel_is_per_row() -> None:
     series = plot_series(program, MachineConfig())
     v_events = [e for e in series["events"] if e["kind"] == "vnotch"]
     assert v_events and all(e["v_travel"] == 5.0 for e in v_events)
+
+    # spear-h alternates big laminations with ~2*scrap slivers that drop out
+    # (the sliver picks up the sub-mm fp45/fm45 calibration offsets too)
+    lengths = [p["center_length"] for p in series["pieces"]]
+    assert lengths and min(lengths) < 11 and max(lengths) > 500
+    assert all(length > 0 for length in lengths)
