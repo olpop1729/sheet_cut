@@ -57,6 +57,113 @@ function pieceTitle(p: Piece): string {
   return lines.join("\n");
 }
 
+/**
+ * Vertical tip offset (mm from centerline) of a piece end, if a v-notch arm
+ * crosses the end's shear line: an fm45 edge ("\") is crossed by a notch's
+ * right arm, an fp45 edge ("/") by a left arm, meeting at
+ * center ± (Δx − travel)/2. Null when no notch arm reaches the end (f0 ends,
+ * or the notch is out of range) — the end is then a plain straight cut.
+ */
+function tipOffset(
+  endTool: string,
+  endX: number,
+  notches: PlotEvent[],
+  w: number,
+): number | null {
+  let best: { off: number; dist: number } | null = null;
+  for (const n of notches) {
+    const t = n.v_travel ?? 0;
+    const dist = Math.abs(n.cut_x! - endX);
+    if (dist > w / 2 + t) continue; // arm cannot reach this end
+    let off: number;
+    if (endTool === "fm45") {
+      off = (endX - n.cut_x! - t) / 2;
+    } else if (endTool === "fp45") {
+      off = (n.cut_x! - endX - t) / 2;
+    } else {
+      continue;
+    }
+    if (off < -t || off > w / 2) continue; // crossing not on the arm / sheet
+    if (!best || dist < best.dist) best = { off, dist };
+  }
+  return best ? best.off : null;
+}
+
+const DETAIL_BOX = 104;
+const MAX_DETAIL_BODIES = 8;
+
+/** Magnified view of one piece end so mm-scale tip offsets become visible. */
+function EndDetail({
+  piece,
+  end,
+  notches,
+  w,
+  zoom,
+}: {
+  piece: Piece;
+  end: "L" | "R";
+  notches: PlotEvent[];
+  w: number;
+  zoom: number;
+}) {
+  const edge = end === "L" ? piece.left : piece.right;
+  const c = w / 2;
+  const half = DETAIL_BOX / 2;
+  const X = (mm: number) => half + (mm - edge.x) * zoom;
+  const Y = (mm: number) => half + (c - mm) * zoom;
+
+  const lo = endOffsets(piece.left.tool, w);
+  const ro = endOffsets(piece.right.tool, w);
+  const quad = [
+    `${X(piece.left.x + lo.bottom)},${Y(0)}`,
+    `${X(piece.right.x + ro.bottom)},${Y(0)}`,
+    `${X(piece.right.x + ro.top)},${Y(w)}`,
+    `${X(piece.left.x + lo.top)},${Y(w)}`,
+  ].join(" ");
+  const off = tipOffset(edge.tool, edge.x, notches, w);
+
+  return (
+    <div style={{ textAlign: "center" }}>
+      <svg
+        width={DETAIL_BOX}
+        height={DETAIL_BOX}
+        style={{ border: "1px solid #d8dce3", borderRadius: 4, background: "#fff" }}
+        role="img"
+        aria-label={`piece ${piece.index} ${end === "L" ? "left" : "right"} end detail`}
+      >
+        <polygon points={quad} fill="#c9d4e2" stroke="#3b4a5e" strokeWidth={1.2} />
+        {notches.map((n) => {
+          const t = n.v_travel ?? 0;
+          const tipY = c - t;
+          const armHalf = w - tipY;
+          return (
+            <polygon
+              key={n.row}
+              points={`${X(n.cut_x! - armHalf)},${Y(w)} ${X(n.cut_x!)},${Y(tipY)} ${X(n.cut_x! + armHalf)},${Y(w)}`}
+              fill="#fff"
+              stroke="#d9534f"
+              strokeWidth={1}
+            />
+          );
+        })}
+        <line
+          x1={0}
+          x2={DETAIL_BOX}
+          y1={Y(c)}
+          y2={Y(c)}
+          stroke="#1c64d9"
+          strokeWidth={0.8}
+          strokeDasharray="5 3"
+        />
+      </svg>
+      <div className="muted" style={{ fontSize: 11, marginTop: 2 }}>
+        #{piece.index} {end === "L" ? "front" : "rear"}
+        {off != null ? ` tip ${off >= 0 ? "+" : ""}${off.toFixed(2)}` : ""}
+      </div>
+    </div>
+  );
+}
+
 export function PiecesView({ series }: { series: PlotSeries }) {
   const [windowOnly, setWindowOnly] = useState(true);
   const [fitView, setFitView] = useState(true);
@@ -105,6 +212,16 @@ export function PiecesView({ series }: { series: PlotSeries }) {
 
   const w = sheetW;
   const s = scale;
+
+  // magnified end views for spear/fish patterns, where the tip geometry is
+  // millimetre-scale and invisible at whole-piece zoom
+  const showDetails = [3, 4, 5].includes(series.pattern_type);
+  const detailBodies = showDetails
+    ? pieces.filter((p) => p.center_length > 50).slice(0, MAX_DETAIL_BODIES)
+    : [];
+  const maxTravel = vNotches.reduce((m, n) => Math.max(m, Math.abs(n.v_travel ?? 0)), 0);
+  const detailZoom = (DETAIL_BOX - 16) / Math.max(30, 6 * maxTravel + 10);
+
   // neighboring 45-degree ends share one cut line and overlap by up to w mm
   // in x; keep the exploded gap larger so sheets never draw over each other
   const gap = w * s + 14;
@@ -258,6 +375,25 @@ export function PiecesView({ series }: { series: PlotSeries }) {
         mm; end angles use the nominal coil width.
         {all.length > pieces.length && " Showing the first " + MAX_PIECES + "."}
       </p>
+
+      {detailBodies.length > 0 && (
+        <>
+          <h3 style={{ marginBottom: 4 }}>End details (×{detailZoom.toFixed(1)})</h3>
+          <div className="row" style={{ alignItems: "flex-start" }}>
+            {detailBodies.map((p) => (
+              <div key={p.index} className="row" style={{ gap: 4, marginBottom: 0 }}>
+                <EndDetail piece={p} end="L" notches={vNotches} w={w} zoom={detailZoom} />
+                <EndDetail piece={p} end="R" notches={vNotches} w={w} zoom={detailZoom} />
+              </div>
+            ))}
+          </div>
+          <p className="muted">
+            Magnified piece ends against the strip centerline (dashed). The tips sit above
+            or below it by the step-lap: when the rear tip is up, the front tip is down,
+            stepping one step-lap distance per layer. Tip values are mm from the centerline.
+          </p>
+        </>
+      )}
     </div>
   );
 }
