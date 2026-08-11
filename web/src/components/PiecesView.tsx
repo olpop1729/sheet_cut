@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import type { Piece, PlotSeries } from "../types";
+import type { Piece, PlotEvent, PlotSeries } from "../types";
 
 /**
  * Resulting pieces — what actually comes off the line, for the ground worker.
@@ -7,20 +7,28 @@ import type { Piece, PlotSeries } from "../types";
  * Each lamination is the strip region between two consecutive shear cuts;
  * the shared cut line's angle shapes the trailing end of one piece and the
  * leading end of the next (fp45 rises to the right, fm45 falls, f0 square).
- * Holes and v-notches are drawn as removed material. Pieces are laid out in
- * production order with small gaps at each shear.
  *
- * The zoom is ISOTROPIC (same px/mm on both axes) so 45-degree ends always
- * look like 45 degrees. Centerline lengths in the labels are exact; the coil
- * width is a nominal drawing value until the real width is entered.
+ * A v-notch is a punch: its triangular cutout spans ±(width − tip height)
+ * around its center, so it is drawn on EVERY piece that footprint overlaps,
+ * clipped to that piece's outline — this is what forms spear points (shear
+ * line + notch arm meeting at the centerline) and notched seats on the two
+ * sheets adjacent to a boundary notch.
+ *
+ * Pieces are laid out in production order. Because 45-degree ends of
+ * neighboring pieces occupy the same x-range (they share one cut line), the
+ * gap between pieces is at least the end overlap, so sheets never draw over
+ * each other. The zoom is ISOTROPIC (same px/mm on both axes) so 45-degree
+ * ends always look like 45 degrees. Centerline lengths in the labels are
+ * exact; the coil width is a nominal drawing value until the real width is
+ * entered.
  */
 
-const GAP = 16; // px between pieces (the shear cut)
 const PAD_X = 12;
 const LABEL_H = 40;
 const HOLE_R_MM = 7.5;
 
 const SCALES = [0.1, 0.25, 0.5, 1];
+const MAX_PIECES = 60;
 
 interface EndOffsets {
   bottom: number;
@@ -49,10 +57,9 @@ function pieceTitle(p: Piece): string {
   return lines.join("\n");
 }
 
-const MAX_PIECES = 60;
-
 export function PiecesView({ series }: { series: PlotSeries }) {
   const [windowOnly, setWindowOnly] = useState(true);
+  const [fitView, setFitView] = useState(true);
   const [scale, setScale] = useState(0.25);
   const [sheetW, setSheetW] = useState(200);
 
@@ -66,6 +73,13 @@ export function PiecesView({ series }: { series: PlotSeries }) {
     return series.pieces;
   }, [series, windowOnly, hasWindow]);
   const pieces = all.slice(0, MAX_PIECES);
+
+  // every v-notch punch in the program; footprint overlap decides which
+  // pieces it appears on, independent of the piece that "owns" it
+  const vNotches = useMemo(
+    () => series.events.filter((e) => e.kind === "vnotch" && e.cut_x != null),
+    [series],
+  );
 
   if (pieces.length === 0) {
     return (
@@ -91,16 +105,21 @@ export function PiecesView({ series }: { series: PlotSeries }) {
 
   const w = sheetW;
   const s = scale;
-  // global mm origin so every piece keeps its true length; gaps are added per
-  // piece index to "explode" the strip at each cut
+  // neighboring 45-degree ends share one cut line and overlap by up to w mm
+  // in x; keep the exploded gap larger so sheets never draw over each other
+  const gap = w * s + 14;
   const origin = pieces[0].left.x - w / 2;
-  const spanMm =
-    pieces[pieces.length - 1].right.x + w / 2 - origin; // widest possible extent
-  const width = spanMm * s + pieces.length * GAP + 2 * PAD_X;
+  const spanMm = pieces[pieces.length - 1].right.x + w / 2 - origin;
+  const width = spanMm * s + (pieces.length + 1) * gap + 2 * PAD_X;
   const bodyH = w * s; // strictly isotropic so end angles stay true
   const height = bodyH + LABEL_H + 8;
-  const X = (mm: number, k: number) => PAD_X + (mm - origin) * s + (k + 1) * GAP;
+  const X = (mm: number, k: number) => PAD_X + (mm - origin) * s + (k + 1) * gap;
   const Y = (mm: number) => 4 + (w - mm) * s; // sheet y (0=bottom) -> px
+
+  const notchGeometry = (n: PlotEvent) => {
+    const tipY = w / 2 - (n.v_travel ?? 0);
+    return { tipY, half: w - tipY };
+  };
 
   return (
     <div>
@@ -116,8 +135,20 @@ export function PiecesView({ series }: { series: PlotSeries }) {
             executable window only
           </label>
         )}
+        <label style={{ minWidth: 0 }}>
+          <input
+            type="checkbox"
+            checked={fitView}
+            onChange={(e) => setFitView(e.target.checked)}
+          />{" "}
+          fit view
+        </label>
         <label style={{ minWidth: 0 }}>zoom</label>
-        <select value={scale} onChange={(e) => setScale(Number(e.target.value))}>
+        <select
+          value={scale}
+          disabled={fitView}
+          onChange={(e) => setScale(Number(e.target.value))}
+        >
           {SCALES.map((z) => (
             <option key={z} value={z}>
               {z} px/mm
@@ -136,7 +167,12 @@ export function PiecesView({ series }: { series: PlotSeries }) {
       </div>
 
       <div style={{ overflowX: "auto", border: "1px solid #e0e4ea", borderRadius: 6 }}>
-        <svg width={width} height={height} role="img" aria-label="resulting pieces">
+        <svg
+          viewBox={`0 0 ${width} ${height}`}
+          style={fitView ? { width: "100%", height: "auto" } : { width, height }}
+          role="img"
+          aria-label="resulting pieces"
+        >
           {pieces.map((p, k) => {
             const lo = endOffsets(p.left.tool, w);
             const ro = endOffsets(p.right.tool, w);
@@ -144,47 +180,58 @@ export function PiecesView({ series }: { series: PlotSeries }) {
             const xtl = X(p.left.x + lo.top, k);
             const xbr = X(p.right.x + ro.bottom, k);
             const xtr = X(p.right.x + ro.top, k);
+            const quad = `${xbl},${Y(0)} ${xbr},${Y(0)} ${xtr},${Y(w)} ${xtl},${Y(w)}`;
+            const clipId = `piececlip-${p.index}`;
             const fill = k % 2 === 0 ? "#c9d4e2" : "#bac7d8";
             const centerPx = (xbl + xtl + xbr + xtr) / 4;
+            const notches = vNotches.filter((n) => {
+              const { half } = notchGeometry(n);
+              return n.cut_x! + half > p.left.x && n.cut_x! - half < p.right.x;
+            });
             return (
               <g key={p.index}>
-                <polygon
-                  points={`${xbl},${Y(0)} ${xbr},${Y(0)} ${xtr},${Y(w)} ${xtl},${Y(w)}`}
-                  fill={fill}
-                  stroke="#3b4a5e"
-                  strokeWidth={1.4}
-                >
-                  <title>{pieceTitle(p)}</title>
-                </polygon>
-                {p.notches.map((n) => {
-                  const tipY = w / 2 - (n.travel ?? 0);
-                  const half = w - tipY;
-                  const xn = X(n.x, k);
-                  return (
-                    <polygon
-                      key={`n${n.row}`}
-                      points={`${X(n.x - half, k)},${Y(w)} ${xn},${Y(tipY)} ${X(n.x + half, k)},${Y(w)}`}
+                <defs>
+                  <clipPath id={clipId}>
+                    <polygon points={quad} />
+                  </clipPath>
+                </defs>
+                <g clipPath={`url(#${clipId})`}>
+                  <polygon points={quad} fill={fill} stroke="#3b4a5e" strokeWidth={1.4}>
+                    <title>{pieceTitle(p)}</title>
+                  </polygon>
+                  {notches.map((n) => {
+                    const { tipY, half } = notchGeometry(n);
+                    return (
+                      <polygon
+                        key={`n${n.row}`}
+                        points={`${X(n.cut_x! - half, k)},${Y(w)} ${X(n.cut_x!, k)},${Y(tipY)} ${X(n.cut_x! + half, k)},${Y(w)}`}
+                        fill="#f5f6f8"
+                        stroke="#d9534f"
+                        strokeWidth={1.2}
+                      >
+                        <title>
+                          {`v-notch (row ${n.row}) @ ${n.cut_x!.toFixed(2)} mm` +
+                            (n.v_travel != null
+                              ? `, traverse ${n.v_travel}`
+                              : " (traverse per step level)")}
+                        </title>
+                      </polygon>
+                    );
+                  })}
+                  {p.holes.map((h) => (
+                    <circle
+                      key={`h${h.row}`}
+                      cx={X(h.x, k)}
+                      cy={Y(w / 2)}
+                      r={Math.max(HOLE_R_MM * s, 2)}
                       fill="#f5f6f8"
-                      stroke="#d9534f"
+                      stroke="#3b4a5e"
                       strokeWidth={1.2}
                     >
-                      <title>{`v-notch (row ${n.row})`}</title>
-                    </polygon>
-                  );
-                })}
-                {p.holes.map((h) => (
-                  <circle
-                    key={`h${h.row}`}
-                    cx={X(h.x, k)}
-                    cy={Y(w / 2)}
-                    r={Math.max(HOLE_R_MM * s, 2)}
-                    fill="#f5f6f8"
-                    stroke="#3b4a5e"
-                    strokeWidth={1.2}
-                  >
-                    <title>{`hole (row ${h.row}) @ ${h.offset.toFixed(2)} mm from left end`}</title>
-                  </circle>
-                ))}
+                      <title>{`hole (row ${h.row}) @ ${h.offset.toFixed(2)} mm from left end`}</title>
+                    </circle>
+                  ))}
+                </g>
                 <text
                   x={centerPx}
                   y={bodyH + 24}
@@ -206,8 +253,9 @@ export function PiecesView({ series }: { series: PlotSeries }) {
       <p className="muted">
         {pieces.length}
         {all.length > pieces.length ? ` of ${all.length}` : ""} pieces in production order,
-        left → right; each gap is a shear cut. White circles/wedges are removed material.
-        Lengths are centerline mm; end angles use the nominal coil width.
+        left → right; each gap is a shear cut. White circles/wedges are removed material —
+        a v-notch near a boundary appears on every sheet it reaches. Lengths are centerline
+        mm; end angles use the nominal coil width.
         {all.length > pieces.length && " Showing the first " + MAX_PIECES + "."}
       </p>
     </div>
